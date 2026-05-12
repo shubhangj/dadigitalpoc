@@ -1,0 +1,15 @@
+.env
+.streamlit/secrets.toml
+
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+backend*.log
+*.err.log
+*.faiss
+*.faiss.meta.json
+
+.DS_Store
+Thumbs.db
