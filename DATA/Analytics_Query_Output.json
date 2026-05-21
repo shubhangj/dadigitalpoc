@@ -1,0 +1,107 @@
+[
+  {
+    "original_query": "Assessment ID | Unique identifier of the credit assessment record. | region UK",
+    "requested_attribute_name": "Assessment ID",
+    "requested_attribute_description": "Unique identifier of the credit assessment record.",
+    "requested_region": "UK",
+    "status": "matched",
+    "answer": "Found 2 relevant match(es) for 'Assessment ID' in region UK using exact match.",
+    "match_phase": "phase1_exact",
+    "selected_details": {
+      "preferred_layer": "MDA",
+      "mda_value_streams": [
+        "MDA.RISK_CREDIT_ASSESSMENT",
+        "MDA.RISK_RATING"
+      ],
+      "mda_value_stream_details": {
+        "MDA.RISK_CREDIT_ASSESSMENT": [
+          {
+            "layer": "MDA",
+            "value_stream_name": "MDA.RISK_CREDIT_ASSESSMENT",
+            "value_stream_attribute": "RISK_CREDIT_ASSESSMENT.assessment_id",
+            "value_stream": "RISK_CREDIT_ASSESSMENT",
+            "value_stream_description": "Source-aligned credit assessment table containing assessment metadata required to derive the latest risk rating per exposure.",
+            "attribute_name": "assessment_id",
+            "attribute_description": "Unique identifier of the credit assessment record.",
+            "source_description": "Retained from the Risk-domain synthetic MDA scope and used in scenarios that require latest valid rating logic.",
+            "join_keys": [
+              "assessment_id"
+            ],
+            "region": "UK",
+            "match_phase": "phase1_exact",
+            "phase_weight": 1.0,
+            "justification": "Exact match to 'assessment_id'."
+          }
+        ],
+        "MDA.RISK_RATING": [
+          {
+            "layer": "MDA",
+            "value_stream_name": "MDA.RISK_RATING",
+            "value_stream_attribute": "RISK_RATING.assessment_id",
+            "value_stream": "RISK_RATING",
+            "value_stream_description": "Source-aligned risk-rating table containing rating grade, PD percent, and rating date linked to the assessment chain.",
+            "attribute_name": "assessment_id",
+            "attribute_description": "Identifier linking the rating to the assessment that produced it.",
+            "source_description": "Retained from the Risk-domain synthetic MDA scope and used in scenarios that require latest rating / PD logic.",
+            "join_keys": [
+              "assessment_id"
+            ],
+            "region": "UK",
+            "match_phase": "phase1_exact",
+            "phase_weight": 0.9543,
+            "justification": "Exact match to 'assessment_id'."
+          }
+        ]
+      }
+    },
+    "relevant_matches": [
+      {
+        "layer": "MDA",
+        "value_stream_name": "MDA.RISK_CREDIT_ASSESSMENT",
+        "value_stream_attribute": "RISK_CREDIT_ASSESSMENT.assessment_id",
+        "value_stream": "RISK_CREDIT_ASSESSMENT",
+        "value_stream_description": "Source-aligned credit assessment table containing assessment metadata required to derive the latest risk rating per exposure.",
+        "attribute_name": "assessment_id",
+        "attribute_description": "Unique identifier of the credit assessment record.",
+        "source_description": "Retained from the Risk-domain synthetic MDA scope and used in scenarios that require latest valid rating logic.",
+        "join_keys": [
+          "assessment_id"
+        ],
+        "region": "UK",
+        "match_phase": "phase1_exact",
+        "phase_weight": 1.0,
+        "justification": "Exact match to 'assessment_id'."
+      },
+      {
+        "layer": "MDA",
+        "value_stream_name": "MDA.RISK_RATING",
+        "value_stream_attribute": "RISK_RATING.assessment_id",
+        "value_stream": "RISK_RATING",
+        "value_stream_description": "Source-aligned risk-rating table containing rating grade, PD percent, and rating date linked to the assessment chain.",
+        "attribute_name": "assessment_id",
+        "attribute_description": "Identifier linking the rating to the assessment that produced it.",
+        "source_description": "Retained from the Risk-domain synthetic MDA scope and used in scenarios that require latest rating / PD logic.",
+        "join_keys": [
+          "assessment_id"
+        ],
+        "region": "UK",
+        "match_phase": "phase1_exact",
+        "phase_weight": 0.9543,
+        "justification": "Exact match to 'assessment_id'."
+      }
+    ],
+    "layer_summary": [
+      {
+        "layer": "MDA",
+        "relevant_match_count": 2
+      }
+    ],
+    "retrieval_metadata": {
+      "documents_considered": 57,
+      "region_filtered_documents": 57,
+      "returned_matches": 2,
+      "phase_used": "phase1_exact",
+      "semantic_index_enabled": true
+    }
+  }
+]

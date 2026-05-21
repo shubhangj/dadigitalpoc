@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Data Discovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#f5f7fb;
+    color:#1e1e1e;
+}
+
+.hidden{
+    display:none !important;
+}
+
+.file-input-hidden{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0, 0, 0, 0);
+    white-space:nowrap;
+    border:0;
+    opacity:0;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:240px;
+    background:#07142d;
+    color:white;
+    padding:24px 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:40px;
+}
+
+.logo span{
+    color:#8b7dff;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.nav-item{
+    padding:14px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+    color:#d7def5;
+    font-weight:500;
+}
+
+.nav-item:hover{
+    background:#17274a;
+}
+
+.nav-item.active{
+    background:#6f5cff;
+    color:white;
+}
+
+.help-card{
+    background:#0d1d3f;
+    border-radius:18px;
+    padding:18px;
+}
+
+.help-card h4{
+    margin-bottom:10px;
+}
+
+.help-card p{
+    font-size:13px;
+    color:#b9c3df;
+    line-height:1.5;
+}
+
+.help-card button{
+    width:100%;
+    margin-top:16px;
+    background:#6f5cff;
+    border:none;
+    color:white;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.main{
+    flex:1;
+    display:flex;
+}
+
+.center{
+    flex:1;
+    padding:28px;
+    overflow-y:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:28px;
+}
+
+.search-box{
+    flex:1;
+    background:white;
+    border-radius:14px;
+    padding:14px 18px;
+    border:1px solid #e2e6f0;
+}
+
+.row-select{
+    width:100%;
+    border:none;
+    outline:none;
+    font-size:16px;
+    background:transparent;
+    color:#1e1e1e;
+    font-family:'Inter',sans-serif;
+}
+
+.filter-btn{
+    background:white;
+    border:1px solid #e1e4ef;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.topbar-side{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.api-indicator{
+    background:white;
+    border:1px solid #e1e4ef;
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:13px;
+    color:#667085;
+    white-space:nowrap;
+}
+
+.header-title{
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:14px;
+}
+
+.subtext{
+    color:#667085;
+    line-height:1.6;
+    margin-bottom:24px;
+    max-width:850px;
+}
+
+.stats{
+    display:flex;
+    gap:18px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+}
+
+.stat-card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    min-width:150px;
+    border:1px solid #ebedf4;
+    flex:1;
+}
+
+.stat-card h3{
+    font-size:28px;
+    margin-bottom:8px;
+}
+
+.stat-card p{
+    color:#7a8092;
+    font-size:14px;
+}
+
+.alert{
+    background:#edf4ff;
+    border:1px solid #d9e8ff;
+    padding:18px;
+    border-radius:16px;
+    margin-bottom:28px;
+    color:#35548a;
+    line-height:1.6;
+}
+
+.alert.success{
+    background:#edf8f0;
+    border-color:#cdebd5;
+    color:#237443;
+}
+
+.alert.error{
+    background:#fff1f0;
+    border-color:#ffd4d1;
+    color:#a13f37;
+}
+
+.alert.warn{
+    background:#fff7ea;
+    border-color:#ffe0ad;
+    color:#99641d;
+}
+
+.section-title{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.cards{
+    display:flex;
+    gap:18px;
+    margin-bottom:34px;
+    flex-wrap:wrap;
+}
+
+.mapping-card{
+    background:white;
+    border-radius:20px;
+    border:1px solid #e6eaf2;
+    padding:22px;
+    flex:1;
+    min-width:240px;
+    min-height:280px;
+    position:relative;
+}
+
+.mapping-card.recommended{
+    border:2px solid #57c67a;
+    box-shadow:0 8px 24px rgba(87,198,122,0.12);
+}
+
+.mapping-card.selected{
+    border:2px solid #57c67a;
+    box-shadow:0 10px 28px rgba(87,198,122,0.18);
+}
+
+.badge{
+    display:inline-block;
+    background:#eafbf0;
+    color:#2f9d57;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:18px;
+}
+
+.mapping-card h3{
+    margin-bottom:16px;
+    font-size:22px;
+    word-break:break-word;
+}
+
+.match{
+    background:#f5f7fb;
+    padding:10px 12px;
+    border-radius:10px;
+    margin-bottom:16px;
+    font-weight:600;
+}
+
+.small-text{
+    color:#6f7483;
+    font-size:14px;
+    line-height:1.6;
+    padding-bottom:64px;
+}
+
+.select-btn{
+    position:absolute;
+    bottom:22px;
+    left:22px;
+    right:22px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#6f5cff;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.flow{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    margin-top:18px;
+    padding-bottom:6px;
+}
+
+.flow-card{
+    min-width:160px;
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    border:1px solid #e5e8f2;
+}
+
+.flow-card h4{
+    margin-bottom:10px;
+    font-size:15px;
+}
+
+.flow-card p{
+    color:#596071;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.right-panel{
+    width:460px;
+    background:white;
+    border-left:1px solid #e8ebf3;
+    padding:28px;
+    overflow-y:auto;
+}
+
+.panel-title{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:26px;
+}
+
+.detail-box{
+    border:1px solid #edf0f5;
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:22px;
+}
+
+.detail-box h4{
+    margin-bottom:18px;
+    font-size:18px;
+}
+
+.info-row{
+    display:grid;
+    grid-template-columns:minmax(170px, 220px) minmax(0, 1fr);
+    align-items:start;
+    gap:12px 18px;
+    margin-bottom:14px;
+}
+
+.uploaded-fields{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.uploaded-field{
+    background:#f8faff;
+    border:1px solid #e5ebf5;
+    border-radius:14px;
+    padding:14px 16px;
+}
+
+.uploaded-field-label{
+    font-size:13px;
+    font-weight:600;
+    color:#667085;
+    margin-bottom:8px;
+    line-height:1.4;
+}
+
+.uploaded-field-value{
+    font-size:15px;
+    font-weight:500;
+    color:#1e1e1e;
+    line-height:1.6;
+    white-space:pre-wrap;
+    overflow-wrap:break-word;
+    word-break:normal;
+}
+
+.label{
+    color:#6c7385;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+}
+
+.value{
+    font-weight:600;
+    text-align:left;
+    min-width:0;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    line-height:1.5;
+}
+
+.lineage{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:18px;
+    margin-top:18px;
+}
+
+.lineage-step{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.node{
+    background:#f5f7fb;
+    border:1px solid #dce2ef;
+    border-radius:12px;
+    padding:16px 24px;
+    font-size:13px;
+    font-weight:600;
+    min-width:230px;
+}
+
+.arrow{
+    font-size:30px;
+    color:#7f87a0;
+    line-height:1;
+}
+
+.related-tags{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+.tag{
+    background:#f1f3fb;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:13px;
+}
+
+.footer-actions{
+    display:flex;
+    gap:14px;
+    margin-top:24px;
+}
+
+.footer-actions button{
+    flex:1;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.secondary{
+    background:#f3f5fb;
+}
+
+.primary{
+    background:#6f5cff;
+    color:white;
+}
+
+.danger{
+    background:#fff1f1;
+    color:#b42318;
+}
+
+.modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(7, 20, 45, 0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:20;
+}
+
+.feedback-modal{
+    width:min(920px, 100%);
+    max-height:calc(100vh - 48px);
+    overflow:auto;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 24px 70px rgba(7, 20, 45, 0.22);
+    padding:0;
+}
+
+.feedback-modal-header{
+    padding:24px 28px 18px;
+    border-bottom:1px solid #e8ebf3;
+}
+
+.feedback-modal h3{
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+.feedback-modal p{
+    color:#5b6478;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.feedback-modal-body{
+    padding:24px 28px;
+}
+
+.feedback-modal textarea{
+    width:100%;
+    min-height:220px;
+    resize:vertical;
+    border:1px solid #dce2ef;
+    border-radius:10px;
+    padding:14px;
+    font-family:inherit;
+    font-size:14px;
+    line-height:1.5;
+    color:#1e1e1e;
+}
+
+.feedback-help-text{
+    margin-bottom:12px;
+}
+
+.sme-preview-panel{
+    margin-top:18px;
+    border:1px solid #fed7aa;
+    background:#fffbeb;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.sme-preview-header{
+    padding:16px 18px;
+    border-bottom:1px solid #fed7aa;
+}
+
+.sme-preview-header h4{
+    font-size:16px;
+    margin-bottom:6px;
+    color:#92400e;
+}
+
+.sme-preview-body{
+    padding:18px;
+    display:grid;
+    gap:14px;
+}
+
+.sme-preview-field{
+    background:white;
+    border:1px solid #fde68a;
+    border-radius:10px;
+    padding:14px;
+}
+
+.sme-preview-label{
+    color:#92400e;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    margin-bottom:8px;
+}
+
+.sme-preview-value{
+    color:#1e1e1e;
+    font-size:14px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    padding:18px 28px 24px;
+    border-top:1px solid #e8ebf3;
+}
+
+.modal-actions button{
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    padding:12px 18px;
+}
+
+@media (max-width: 1200px){
+    .main{
+        flex-direction:column;
+    }
+
+    .right-panel{
+        width:100%;
+        border-left:none;
+        border-top:1px solid #e8ebf3;
+    }
+}
+
+@media (max-width: 900px){
+    .container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        gap:24px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+}
+
+@media (max-width: 640px){
+    .center,
+    .right-panel{
+        padding:18px;
+    }
+
+    .info-row{
+        grid-template-columns:1fr;
+    }
+
+    .value{
+        text-align:left;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                Data Discovery <span>AI</span>
+            </div>
+
+            <div class="nav">
+                <div class="nav-item">Home</div>
+                <div class="nav-item active">Search</div>
+                <div class="nav-item">Glossary</div>
+                <div class="nav-item">Data Assets</div>
+                <div class="nav-item">Lineage</div>
+                <div class="nav-item">Domains</div>
+                <div class="nav-item">Quality</div>
+                <div class="nav-item">Reports</div>
+                <div class="nav-item">Settings</div>
+            </div>
+        </div>
+
+        <div class="help-card">
+            <h4>Need Help?</h4>
+            <p>
+                Upload the Digital DA requirement workbook and review matching
+                value streams, lineage and related attributes from the global glossary.
+            </p>
+            <button id="sidebarUploadBtn" type="button">Upload Requirement File</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="center">
+            <input id="requirementFile" class="file-input-hidden" type="file" accept=".xlsx,.csv" />
+
+            <div class="topbar">
+                <div class="search-box">
+                    <select id="rowSelect" class="row-select">
+                        <option value="">Upload requirement workbook to start</option>
+                    </select>
+                </div>
+
+                <div class="topbar-side">
+                    <div id="apiIndicator" class="api-indicator">API: checking...</div>
+                    <button id="uploadBtn" class="filter-btn" type="button">
+                        Upload File
+                    </button>
+                </div>
+            </div>
+
+            <div id="headerTitle" class="header-title">
+                View details for attribute
+            </div>
+
+            <div id="headerSubtext" class="subtext">
+                Upload the changed requirement workbook. The page will process Business Attribute and
+                Business Definition against the global glossary and show the returned value streams.
+            </div>
+
+            <div id="statsGrid" class="stats">
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Value Streams</p>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Layers</p>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Matches</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Idle</h3>
+                    <p>Status</p>
+                </div>
+            </div>
+
+            <div id="statusAlert" class="alert">
+                Upload a requirement workbook to start the Digital DA workflow.
+            </div>
+
+            <div id="cardsSectionTitle" class="section-title">
+                Select GDA Value Stream
+            </div>
+
+            <div id="valueStreamCards" class="cards">
+                <div class="mapping-card">
+                    <h3>No value stream selected</h3>
+                    <div class="match">Waiting for workbook upload</div>
+                    <div class="small-text">
+                        Once the requirement workbook is processed, the returned Digital DA value streams
+                        will appear here for review and selection.
+                    </div>
+                    <button class="select-btn" type="button" disabled>Waiting</button>
+                </div>
+            </div>
+
+            <div class="section-title">
+                Mapping Flow
+            </div>
+
+            <div id="flowCards" class="flow">
+                <div class="flow-card">
+                    <h4>Requested Attribute</h4>
+                    <p>-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel-title">
+                Attribute Details
+            </div>
+
+            <div class="detail-box">
+                <h4>Requirement Summary</h4>
+                <div id="attributeInfo">
+                    <div class="info-row">
+                        <div class="label">Attribute Name</div>
+                        <div class="value">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-box">
+                <h4>Lineage Preview</h4>
+                <div id="lineagePreview" class="lineage">
+                    <div class="node">No lineage available yet</div>
+                </div>
+            </div>
+
+            <div class="detail-box">
+                <h4>Related Attributes</h4>
+                <div id="relatedAttributes" class="related-tags">
+                    <div class="tag">No attributes selected</div>
+                </div>
+            </div>
+
+            <div class="footer-actions">
+                <button id="declineBtn" class="danger" type="button">
+                    Decline
+                </button>
+
+                <button id="approveBtn" class="primary" type="button">
+                    Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="declineFeedbackModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="declineFeedbackTitle">
+    <div class="feedback-modal">
+        <div class="feedback-modal-header">
+            <h3 id="declineFeedbackTitle">Decline Feedback</h3>
+            <p id="declineFeedbackIntro">Enter the correct attribute details and description. If the feedback does not include usable attribute details, the app will prepare an SME email message instead.</p>
+        </div>
+        <div class="feedback-modal-body">
+            <p class="feedback-help-text">Use one block per attribute. Each block should include an attribute name and description.</p>
+            <textarea id="declineFeedbackText" placeholder="Example: Attribute Name: Customer Risk Segment&#10;Description: Customer segmentation based on risk score, transaction behavior, and KYC status."></textarea>
+            <div id="smePreviewPanel" class="sme-preview-panel hidden">
+                <div class="sme-preview-header">
+                    <h4>SME Email Preview</h4>
+                    <p>This is a preview only. The app is not sending the email yet.</p>
+                </div>
+                <div class="sme-preview-body">
+                    <div class="sme-preview-field">
+                        <div class="sme-preview-label">Subject</div>
+                        <div id="smePreviewSubject" class="sme-preview-value">-</div>
+                    </div>
+                    <div class="sme-preview-field">
+                        <div class="sme-preview-label">Message</div>
+                        <div id="smePreviewBody" class="sme-preview-value">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="cancelDeclineFeedbackBtn" class="secondary" type="button">Cancel</button>
+            <button id="submitDeclineFeedbackBtn" class="primary" type="button">Submit Feedback</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const state = {
+    payload: null,
+    selectedIndex: null,
+    lastMessage: "",
+    lastMessageType: "",
+    detailsPrefetchPromise: null,
+    preparedExcelUrl: "",
+    preparedJsonUrl: "",
+    feedbackRerunActive: false,
+    smePreviewReady: false
+};
+window.state = state;
+
+const requirementFileInput = document.getElementById("requirementFile");
+const uploadBtn = document.getElementById("uploadBtn");
+const sidebarUploadBtn = document.getElementById("sidebarUploadBtn");
+const rowSelect = document.getElementById("rowSelect");
+const headerTitle = document.getElementById("headerTitle");
+const headerSubtext = document.getElementById("headerSubtext");
+const statsGrid = document.getElementById("statsGrid");
+const statusAlert = document.getElementById("statusAlert");
+const cardsSectionTitle = document.getElementById("cardsSectionTitle");
+const valueStreamCards = document.getElementById("valueStreamCards");
+const flowCards = document.getElementById("flowCards");
+const attributeInfo = document.getElementById("attributeInfo");
+const lineagePreview = document.getElementById("lineagePreview");
+const relatedAttributes = document.getElementById("relatedAttributes");
+const approveBtn = document.getElementById("approveBtn");
+const declineBtn = document.getElementById("declineBtn");
+const declineFeedbackModal = document.getElementById("declineFeedbackModal");
+const declineFeedbackText = document.getElementById("declineFeedbackText");
+const smePreviewPanel = document.getElementById("smePreviewPanel");
+const smePreviewSubject = document.getElementById("smePreviewSubject");
+const smePreviewBody = document.getElementById("smePreviewBody");
+const cancelDeclineFeedbackBtn = document.getElementById("cancelDeclineFeedbackBtn");
+const submitDeclineFeedbackBtn = document.getElementById("submitDeclineFeedbackBtn");
+const apiIndicator = document.getElementById("apiIndicator");
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function normalizeUrl(url) {
+    return String(url || "").trim().replace(/\/+$/, "");
+}
+
+function getApiBaseUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const queryApi = normalizeUrl(params.get("api"));
+    if (queryApi) {
+        return queryApi;
+    }
+
+    const currentHost = window.location.hostname || "";
+    const currentPort = window.location.port || "";
+    const isLocalPreview =
+        (window.location.protocol === "file:") ||
+        (
+            (currentHost === "127.0.0.1" || currentHost === "localhost") &&
+            ["5500", "5501", "5502", "5503", "5504", "5505"].includes(currentPort)
+        );
+
+    if (isLocalPreview) {
+        return "http://127.0.0.1:8000";
+    }
+
+    return normalizeUrl(window.location.origin);
+}
+
+function buildApiUrl(path) {
+    return `${getApiBaseUrl()}${path}`;
+}
+
+function normalizeHeader(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+}
+
+function getRequiredHeaderLookup(headers) {
+    const normalizedToActual = {};
+    headers.forEach((header) => {
+        normalizedToActual[normalizeHeader(header)] = String(header || "").trim();
+    });
+
+    const mapping = {
+        business_attribute: normalizedToActual.business_attribute,
+        business_definition: normalizedToActual.business_definition,
+        region: normalizedToActual.region,
+        value_stream: normalizedToActual.value_stream,
+        brief_problem_statement: normalizedToActual.brief_problem_statement_use_case,
+        system_requirements: normalizedToActual.system_requirements
+    };
+
+    if (!mapping.business_attribute || !mapping.business_definition) {
+        throw new Error("Requirement workbook must contain Business Attribute and Business Definition columns.");
+    }
+
+    return mapping;
+}
+
+async function parseRequirementWorkbookInBrowser(file) {
+    if (typeof XLSX === "undefined") {
+        throw new Error("Excel parser not loaded in the page.");
+    }
+
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const sheetName =
+        workbook.SheetNames.find((name) => normalizeHeader(name) === "requirement") ||
+        workbook.SheetNames[0];
+
+    if (!sheetName) {
+        throw new Error("No worksheet found in the uploaded workbook.");
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+    if (!rows.length) {
+        throw new Error("Requirement workbook is empty.");
+    }
+
+    const headers = rows[0].map((value) => String(value || "").trim());
+    const lookup = getRequiredHeaderLookup(headers);
+    const headerIndex = Object.fromEntries(headers.map((header, index) => [header, index]));
+    const requirements = [];
+
+    for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+        const row = rows[rowIndex] || [];
+        const getValue = (headerName) => {
+            if (!headerName) {
+                return "";
+            }
+            return String(row[headerIndex[headerName]] || "").trim();
+        };
+
+        const businessAttribute = getValue(lookup.business_attribute);
+        const businessDefinition = getValue(lookup.business_definition);
+        if (!businessAttribute && !businessDefinition) {
+            continue;
+        }
+        if (!businessAttribute || !businessDefinition) {
+            throw new Error(`Requirement row ${rowIndex + 1} must include both Business Attribute and Business Definition.`);
+        }
+
+        const region = getValue(lookup.region);
+        const valueStream = getValue(lookup.value_stream);
+        const briefProblemStatement = getValue(lookup.brief_problem_statement);
+        const systemRequirements = getValue(lookup.system_requirements);
+
+        requirements.push({
+            row_number: rowIndex + 1,
+            business_attribute: businessAttribute,
+            business_definition: businessDefinition,
+            region,
+            value_stream: valueStream,
+            brief_problem_statement: briefProblemStatement,
+            system_requirements: systemRequirements,
+            attribute_name: businessAttribute,
+            attribute_description: businessDefinition,
+            selected_value_stream: valueStream,
+            query: [businessAttribute, businessDefinition, region ? `Region: ${region}` : ""].filter(Boolean).join(" | ")
+        });
+    }
+
+    return requirements;
+}
+
+function buildUiPayloadFromBatch(fileName, requirements, batchPayload) {
+    const batchResults = Array.isArray(batchPayload.results) ? batchPayload.results : [];
+    let matchedRows = 0;
+    let noMatchRows = 0;
+    let requiresHumanSelectionRows = 0;
+
+    const results = requirements.map((requirement, index) => {
+        const output = batchResults[index] ? batchResults[index].output : null;
+        if (output?.status === "matched") {
+            matchedRows += 1;
+        } else if (output?.status === "requires_human_selection") {
+            requiresHumanSelectionRows += 1;
+        } else {
+            noMatchRows += 1;
+        }
+        return {
+            requirement,
+            output: output || {
+                status: "no_match",
+                answer: "No response returned for this requirement row.",
+                match_phase: "",
+                relevant_matches: [],
+                selected_details: {},
+                human_selection_options: []
+            }
+        };
+    });
+
+    return {
+        source_file_name: fileName,
+        total_rows: requirements.length,
+        matched_rows: matchedRows,
+        no_match_rows: noMatchRows,
+        requires_human_selection_rows: requiresHumanSelectionRows,
+        results
+    };
+}
+
+function buildUiPayloadFromSummary(fileName, requirements, summaryPayload) {
+    const summaries = Array.isArray(summaryPayload.summaries) ? summaryPayload.summaries : [];
+    let matchedRows = 0;
+    let noMatchRows = 0;
+    let requiresHumanSelectionRows = 0;
+
+    const results = requirements.map((requirement, index) => {
+        const summary = summaries[index] || {};
+        if (summary.status === "matched") {
+            matchedRows += 1;
+        } else if (summary.status === "requires_human_selection") {
+            requiresHumanSelectionRows += 1;
+        } else {
+            noMatchRows += 1;
+        }
+
+        return {
+            requirement,
+            output: {
+                status: summary.status || "no_match",
+                answer: summary.answer || "Waiting for selected-row details.",
+                match_phase: summary.match_phase || "",
+                human_in_loop_required: Boolean(summary.human_in_loop_required),
+                human_selection_options: [],
+                selected_details: {},
+                relevant_matches: [],
+                details_loaded: false,
+                summary_match_count: Number(summary.relevant_match_count || 0)
+            }
+        };
+    });
+
+    return {
+        source_file_name: fileName,
+        total_rows: requirements.length,
+        matched_rows: matchedRows,
+        no_match_rows: noMatchRows,
+        requires_human_selection_rows: requiresHumanSelectionRows,
+        results
+    };
+}
+
+async function loadRequirementDetails(index) {
+    const entry = state.payload?.results?.[index];
+    if (!entry) {
+        return;
+    }
+
+    if (entry.output && entry.output.details_loaded) {
+        return;
+    }
+
+    const requirement = entry.requirement || {};
+    setMessage(`Loading details for ${requirement.business_attribute || "selected attribute"}...`, "");
+    safeRenderAll();
+
+    try {
+        entry.output = await requestAnalyticsOutput(requirement, requirement.selected_value_stream || "");
+        const groups = getValueStreamGroups(entry.output);
+        if (!groups.length) {
+            setMessage(`No matching value stream found for ${requirement.business_attribute || "selected attribute"}.`, "warn");
+        } else {
+            setMessage(`Loaded details for ${requirement.business_attribute || "selected attribute"}.`, "success");
+        }
+        safeRenderAll();
+    } catch (error) {
+        setMessage(`${error.message || "Requirement details loading failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+async function checkBackendHealth() {
+    const apiBaseUrl = getApiBaseUrl();
+    apiIndicator.textContent = `API: checking ${apiBaseUrl}`;
+
+    try {
+        const response = await fetch(buildApiUrl("/health"));
+        if (!response.ok) {
+            throw new Error(`Health check returned ${response.status}`);
+        }
+
+        apiIndicator.textContent = `API: connected ${apiBaseUrl}`;
+        if (!state.payload && !state.lastMessage) {
+            setMessage(`Connected to backend at ${apiBaseUrl}. Upload the requirement workbook to continue.`, "success");
+            safeRenderAll();
+        }
+    } catch (error) {
+        apiIndicator.textContent = `API: offline ${apiBaseUrl}`;
+        setMessage(`Backend not reachable at ${apiBaseUrl}. Run "uvicorn api:app --reload" first.`, "error");
+        safeRenderAll();
+    }
+}
+
+function getSelectedEntry() {
+    if (!state.payload || state.selectedIndex === null) {
+        return null;
+    }
+    return state.payload.results[state.selectedIndex] || null;
+}
+
+function getSelectedOutput() {
+    const entry = getSelectedEntry();
+    return entry ? entry.output : null;
+}
+
+function getSelectedMatch(output) {
+    if (!output) {
+        return null;
+    }
+    const details = output.selected_details || {};
+    if (Array.isArray(details.selected_gda_details) && details.selected_gda_details.length) {
+        return details.selected_gda_details[0];
+    }
+    if (Array.isArray(details.selected_mda_details) && details.selected_mda_details.length) {
+        return details.selected_mda_details[0];
+    }
+    if (details.recommended_gda_value_stream && details.gda_value_stream_details?.[details.recommended_gda_value_stream]?.length) {
+        return details.gda_value_stream_details[details.recommended_gda_value_stream][0];
+    }
+    if (details.recommended_mda_value_stream && details.mda_value_stream_details?.[details.recommended_mda_value_stream]?.length) {
+        return details.mda_value_stream_details[details.recommended_mda_value_stream][0];
+    }
+    if (Array.isArray(output.relevant_matches) && output.relevant_matches.length) {
+        return output.relevant_matches[0];
+    }
+    return null;
+}
+
+function getUniqueAttributes(matches) {
+    const seen = new Set();
+    const attributes = [];
+    (matches || []).forEach((match) => {
+        const attribute = match.attribute_name || "";
+        if (!attribute || seen.has(attribute)) {
+            return;
+        }
+        seen.add(attribute);
+        attributes.push(attribute);
+    });
+    return attributes;
+}
+
+function getUniqueLayers(matches) {
+    return Array.from(new Set((matches || []).map((match) => match.layer).filter(Boolean)));
+}
+
+function getLayerGroups(output, layer) {
+    if (!output) {
+        return [];
+    }
+
+    const grouped = new Map();
+    (output.relevant_matches || []).forEach((match) => {
+        if ((match.layer || "") !== layer) {
+            return;
+        }
+        const key = match.value_stream_name || match.value_stream || "Unknown";
+        if (!grouped.has(key)) {
+            grouped.set(key, []);
+        }
+        grouped.get(key).push(match);
+    });
+
+    return Array.from(grouped.entries()).map(([name, matches]) => ({
+        name,
+        layer,
+        matches
+    }));
+}
+
+function getScenarioInfo(output) {
+    if (!output) {
+        return {
+            sectionTitle: "Returned Value Streams",
+            label: "-",
+            streamMessage: "No value streams available."
+        };
+    }
+
+    const details = output.selected_details || {};
+    const gdaGroups = getLayerGroups(output, "GDA");
+    const mdaGroups = getLayerGroups(output, "MDA");
+    const cdaGroups = getLayerGroups(output, "CDA");
+    const gdaCount = gdaGroups.length;
+    const mdaCount = mdaGroups.length;
+    const cdaCount = cdaGroups.length;
+    const gdaNames = gdaGroups.map((group) => group.name);
+    const mdaNames = mdaGroups.map((group) => group.name);
+    const cdaNames = cdaGroups.map((group) => group.name);
+
+    if (details.preferred_layer === "GDA") {
+        if (gdaCount > 0 && mdaCount > 0 && (gdaCount > 1 || mdaCount > 1)) {
+            return {
+                sectionTitle: "Select GDA Value Stream",
+                label: "Scenario 1 - Multiple MDA and GDA",
+                streamMessage: `Multiple GDA value streams are available: ${gdaNames.join(", ")}.${mdaNames.length ? ` MDA value streams also found: ${mdaNames.join(", ")}.` : ""}`
+            };
+        }
+        if (gdaCount === 1 && mdaCount === 1) {
+            return {
+                sectionTitle: "Returned Value Streams",
+                label: "Scenario 2 - One MDA and One GDA",
+                streamMessage: `One GDA value stream is available: ${gdaNames.join(", ")}. One MDA value stream is also available: ${mdaNames.join(", ")}.`
+            };
+        }
+        if (gdaCount > 1) {
+            return {
+                sectionTitle: "Select GDA Value Stream",
+                label: "Scenario - Multiple GDA and No MDA",
+                streamMessage: `Multiple GDA value streams are available: ${gdaNames.join(", ")}.`
+            };
+        }
+        if (gdaCount >= 1) {
+            return {
+                sectionTitle: "Returned GDA Value Streams",
+                label: mdaCount > 0 ? "Scenario 2 - One MDA and One GDA" : "Scenario - Only GDA",
+                streamMessage: `GDA value stream available: ${gdaNames.join(", ")}.`
+            };
+        }
+    }
+
+    if (details.preferred_layer === "MDA") {
+        return {
+            sectionTitle: "Returned MDA Value Streams",
+            label: mdaCount > 1 ? "Scenario 3 - Multiple MDA and No GDA" : "Scenario - One MDA and No GDA",
+            streamMessage: `${mdaCount > 1 ? "Multiple" : "One"} MDA value stream${mdaCount > 1 ? "s are" : " is"} available: ${mdaNames.join(", ")}.`
+        };
+    }
+
+    if (cdaCount > 0) {
+        return {
+            sectionTitle: "Returned CDA Value Streams",
+            label: cdaCount > 1 ? "Scenario - Multiple CDA and No MDA/GDA" : "Scenario - Only CDA",
+            streamMessage: `${cdaCount > 1 ? "Multiple" : "One"} CDA value stream${cdaCount > 1 ? "s are" : " is"} available: ${cdaNames.join(", ")}.`
+        };
+    }
+
+    if (output.status === "no_match") {
+        return {
+            sectionTitle: "Returned Value Streams",
+            label: "Scenario - No Match",
+            streamMessage: "No relevant value stream was found for this attribute."
+        };
+    }
+
+    return {
+        sectionTitle: "Returned Value Streams",
+        label: "Scenario - Returned Value Streams",
+        streamMessage: "Returned value streams are available."
+    };
+}
+
+function getStatusMessage(output) {
+    const scenario = getScenarioInfo(output);
+    if (!output) {
+        return "Upload a requirement workbook to start the Digital DA workflow.";
+    }
+    if (output.details_loaded === false) {
+        return output.answer || "Loading details for the selected requirement.";
+    }
+    if (output.status === "no_match") {
+        return output.answer || scenario.streamMessage;
+    }
+    return scenario.streamMessage || output.answer || "Returned value streams are available.";
+}
+
+function getPreferredGroup(output) {
+    const groups = getValueStreamGroups(output);
+    return groups.find((group) => group.selected) || groups.find((group) => group.recommended) || groups[0] || null;
+}
+
+function getPreferredMatch(output) {
+    const group = getPreferredGroup(output);
+    if (group && Array.isArray(group.matches) && group.matches.length) {
+        return getBestGroupMatch(group.matches);
+    }
+    return getSelectedMatch(output);
+}
+
+function getSelectionBasis(output) {
+    const group = getPreferredGroup(output);
+    if (!group) {
+        return "";
+    }
+    return group.selected ? "Selected" : group.recommended ? "Recommended" : "Returned";
+}
+
+function buildUserSafeResult(entry) {
+    const requirement = entry?.requirement || {};
+    const output = entry?.output || {};
+    const preferredGroup = getPreferredGroup(output);
+    const preferredMatch = getPreferredMatch(output) || {};
+    const scenario = getScenarioInfo(output);
+    const selectedGroupMatches = preferredGroup?.matches || output?.relevant_matches || [];
+
+    return {
+        row_number: requirement.row_number || "",
+        business_attribute: requirement.business_attribute || "",
+        business_definition: requirement.business_definition || "",
+        region: requirement.region || "",
+        value_stream: requirement.value_stream || "",
+        brief_problem_statement: requirement.brief_problem_statement || "",
+        system_requirements: requirement.system_requirements || "",
+        result: {
+            status: output.status || "",
+            data_quality: getDataQualityLabel(output),
+            scenario: scenario.label,
+            selection_basis: getSelectionBasis(output),
+            returned_value_stream_count: getValueStreamGroups(output).length,
+            returned_layer: preferredGroup?.layer || preferredMatch.layer || "",
+            returned_value_stream: preferredGroup?.name || preferredMatch.value_stream_name || preferredMatch.value_stream || "",
+            returned_entity: preferredMatch.value_stream || "",
+            matched_attribute: preferredMatch.attribute_name || "",
+            matched_attribute_description: preferredMatch.attribute_description || "",
+            match_type: formatPhase(preferredMatch.match_phase || output.match_phase || ""),
+            confidence_score: formatScore(preferredMatch),
+            recommendation_score: formatRecommendationScore(preferredMatch),
+            justification: preferredMatch.justification || output.answer || "",
+            lineage_value_streams: preferredMatch.lineage_value_streams || [],
+            related_attributes: getUniqueAttributes(selectedGroupMatches)
+        }
+    };
+}
+
+function buildUserSafePayload() {
+    if (!state.payload) {
+        return null;
+    }
+
+    return {
+        source_file_name: state.payload.source_file_name || "",
+        total_rows: state.payload.total_rows || 0,
+        matched_rows: state.payload.matched_rows || 0,
+        no_match_rows: state.payload.no_match_rows || 0,
+        requires_human_selection_rows: state.payload.requires_human_selection_rows || 0,
+        results: (state.payload.results || []).map((entry) => buildUserSafeResult(entry))
+    };
+}
+
+function buildExcelRows() {
+    return (state.payload?.results || []).map((entry) => {
+        const requirement = entry?.requirement || {};
+        const output = entry?.output || {};
+        const preferredGroup = getPreferredGroup(output);
+        const preferredMatch = getPreferredMatch(output) || {};
+        const mappingType = getSelectionBasis(output) || "Recommended";
+        const source = preferredGroup?.name || preferredMatch.value_stream_name || preferredMatch.value_stream || "";
+        const userFeedback = mappingType === "Selected"
+            ? "User selected this value stream."
+            : mappingType === "Recommended"
+                ? "System recommended this value stream."
+                : "Returned by analytics search.";
+
+        return {
+            "Business Attribute": requirement.business_attribute || "",
+            "Business Definition": requirement.business_definition || "",
+            "Region": requirement.region || "",
+            "Value Stream": requirement.value_stream || "",
+            "Brief Problem Statement / Use Case": requirement.brief_problem_statement || "",
+            "System Requirements": requirement.system_requirements || "",
+            "Matched Attribute": preferredMatch.attribute_name || "",
+            "Search Phase": formatPhase(preferredMatch.match_phase || output.match_phase || ""),
+            "Confidence Score": formatScore(preferredMatch),
+            "Recommendation Score": formatRecommendationScore(preferredMatch),
+            "Mapping Type": mappingType,
+            "Source": source,
+            "User Feedback": userFeedback,
+            "Justification": preferredMatch.justification || output.answer || ""
+        };
+    });
+}
+
+function getValueStreamGroups(output) {
+    if (!output) {
+        return [];
+    }
+
+    const details = output.selected_details || {};
+    if (details.preferred_layer === "GDA" && Array.isArray(details.gda_value_streams)) {
+        return details.gda_value_streams.map((name, index) => ({
+            name,
+            layer: "GDA",
+            matches: (details.gda_value_stream_details || {})[name] || [],
+            selected: name === details.selected_gda_value_stream,
+            recommended: name === details.recommended_gda_value_stream || (!details.recommended_gda_value_stream && !details.selected_gda_value_stream && index === 0)
+        }));
+    }
+
+    if (details.preferred_layer === "MDA" && Array.isArray(details.mda_value_streams)) {
+        return details.mda_value_streams.map((name, index) => ({
+            name,
+            layer: "MDA",
+            matches: (details.mda_value_stream_details || {})[name] || [],
+            selected: name === details.selected_mda_value_stream,
+            recommended: name === details.recommended_mda_value_stream || (!details.recommended_mda_value_stream && !details.selected_mda_value_stream && index === 0)
+        }));
+    }
+
+    const grouped = new Map();
+    (output.relevant_matches || []).forEach((match) => {
+        const key = match.value_stream_name || match.value_stream || "Unknown";
+        if (!grouped.has(key)) {
+            grouped.set(key, []);
+        }
+        grouped.get(key).push(match);
+    });
+
+    return Array.from(grouped.entries()).map(([name, matches], index) => ({
+        name,
+        layer: matches[0]?.layer || "",
+        matches,
+        selected: index === 0,
+        recommended: index === 0
+    }));
+}
+
+function getBestGroupMatch(matches) {
+    const candidates = Array.isArray(matches) ? matches : [];
+    if (!candidates.length) {
+        return {};
+    }
+    return [...candidates].sort((left, right) => {
+        const recommendationDelta = Number(right.recommendation_score || 0) - Number(left.recommendation_score || 0);
+        if (recommendationDelta) {
+            return recommendationDelta;
+        }
+        return Number(right.phase_weight || 0) - Number(left.phase_weight || 0);
+    })[0];
+}
+
+function formatPhase(phase) {
+    const labels = {
+        phase1_exact: "Exact Match",
+        phase2_fuzzy: "Approximate Match",
+        phase3_semantic: "Semantic Match"
+    };
+    return labels[phase] || "No Match";
+}
+
+function formatStatus(status) {
+    if (status === "requires_human_selection") {
+        return "Need Selection";
+    }
+    if (status === "matched") {
+        return "Matched";
+    }
+    return "No Match";
+}
+
+function getDataQualityLabel(output) {
+    if (!output) {
+        return "-";
+    }
+
+    if (output.status === "no_match") {
+        return "Poor";
+    }
+
+    if (output.human_in_loop_required) {
+        return "Moderate";
+    }
+
+    if (output.match_phase === "phase1_exact") {
+        return "High";
+    }
+
+    if (output.match_phase === "phase2_fuzzy") {
+        return "Moderate";
+    }
+
+    if (output.match_phase === "phase3_semantic") {
+        return "Poor";
+    }
+
+    return "Moderate";
+}
+
+function formatScore(match) {
+    const rawScore = Number(match?.phase_weight || 0);
+    if (!rawScore) {
+        return "-";
+    }
+    return `${Math.round(rawScore * 100)}%`;
+}
+
+function formatRecommendationScore(match) {
+    const rawScore = Number(match?.recommendation_score || 0);
+    if (!rawScore) {
+        return "-";
+    }
+    const percentScore = rawScore > 1 ? rawScore : rawScore * 100;
+    return `${Math.round(Math.min(100, Math.max(0, percentScore)))}%`;
+}
+
+function setMessage(message, type = "") {
+    state.lastMessage = message;
+    state.lastMessageType = type;
+}
+
+function clearMessage() {
+    state.lastMessage = "";
+    state.lastMessageType = "";
+}
+
+function reportClientError(context, error) {
+    const details = error && error.message ? error.message : String(error || "Unknown error");
+    console.error(context, error);
+    statusAlert.className = "alert error";
+    statusAlert.textContent = `${context}: ${details}`;
+}
+
+async function requestAnalyticsOutput(requirement, selectedValueStream = "") {
+    const response = await fetch(buildApiUrl("/analytics"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            attribute_name: requirement.attribute_name,
+            attribute_description: requirement.attribute_description,
+            region: requirement.region || "",
+            selected_value_stream: selectedValueStream || requirement.selected_value_stream || "",
+            brief_problem_statement: requirement.brief_problem_statement || "",
+            system_requirements: requirement.system_requirements || ""
+        })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+        throw new Error(payload.detail || "Analytics request failed.");
+    }
+
+    return {
+        ...payload,
+        details_loaded: true
+    };
+}
+
+async function ensureAllRequirementDetailsLoaded(showProgress = true) {
+    const entries = state.payload?.results || [];
+    for (let index = 0; index < entries.length; index += 1) {
+        const entry = entries[index];
+        if (entry?.output?.details_loaded) {
+            continue;
+        }
+
+        const requirement = entry?.requirement || {};
+        if (showProgress) {
+            setMessage(`Preparing export details ${index + 1}/${entries.length}: ${requirement.business_attribute || "attribute"}...`, "");
+            safeRenderAll();
+        }
+        entry.output = await requestAnalyticsOutput(requirement, requirement.selected_value_stream || "");
+    }
+}
+
+function revokePreparedDownloads() {
+    if (state.preparedExcelUrl) {
+        URL.revokeObjectURL(state.preparedExcelUrl);
+        state.preparedExcelUrl = "";
+    }
+    if (state.preparedJsonUrl) {
+        URL.revokeObjectURL(state.preparedJsonUrl);
+        state.preparedJsonUrl = "";
+    }
+}
+
+function buildPreparedDownloads() {
+    revokePreparedDownloads();
+
+    const exportPayload = buildUserSafePayload();
+    if (exportPayload) {
+        const jsonBlob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
+        state.preparedJsonUrl = URL.createObjectURL(jsonBlob);
+    }
+
+    if (typeof XLSX !== "undefined" && state.payload) {
+        const rows = buildExcelRows();
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Digital_DA_Results");
+        const workbookArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const excelBlob = new Blob(
+            [workbookArray],
+            { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+        );
+        state.preparedExcelUrl = URL.createObjectURL(excelBlob);
+    }
+}
+
+async function startBackgroundPreparation() {
+    if (!state.payload) {
+        return;
+    }
+    if (state.detailsPrefetchPromise) {
+        return state.detailsPrefetchPromise;
+    }
+
+    revokePreparedDownloads();
+    state.detailsPrefetchPromise = (async () => {
+        await ensureAllRequirementDetailsLoaded(false);
+        buildPreparedDownloads();
+    })().finally(() => {
+        state.detailsPrefetchPromise = null;
+    });
+
+    return state.detailsPrefetchPromise;
+}
+
+async function ensurePreparedDownloads() {
+    if (state.preparedExcelUrl && state.preparedJsonUrl) {
+        return;
+    }
+
+    if (state.detailsPrefetchPromise) {
+        await state.detailsPrefetchPromise;
+    } else {
+        await ensureAllRequirementDetailsLoaded(true);
+        buildPreparedDownloads();
+    }
+}
+
+function triggerDownload(url, fileName) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
+async function objectUrlToBlob(url) {
+    const response = await fetch(url);
+    return response.blob();
+}
+
+async function buildZipBlob(files) {
+    if (typeof JSZip === "undefined") {
+        throw new Error("ZIP export library is not available in the page.");
+    }
+
+    const zip = new JSZip();
+    files.forEach((file) => {
+        zip.file(file.name, file.blob);
+    });
+    return zip.generateAsync({ type: "blob" });
+}
+
+async function downloadZip(files, fileName) {
+    const zipBlob = await buildZipBlob(files);
+    const zipUrl = URL.createObjectURL(zipBlob);
+    triggerDownload(zipUrl, fileName);
+    setTimeout(() => URL.revokeObjectURL(zipUrl), 0);
+}
+
+function buildFeedbackRows(feedbackItems, feedbackText) {
+    return feedbackItems.map((item, index) => ({
+        "Feedback Row": index + 1,
+        "Attribute Name": item.attribute_name,
+        "Attribute Description": item.attribute_description,
+        "Region": item.region || "",
+        "Original Feedback": feedbackText
+    }));
+}
+
+function downloadFeedbackLearningFile(feedbackItems, feedbackText) {
+    const feedbackPayload = {
+        source_file_name: state.payload?.source_file_name || "",
+        captured_at: new Date().toISOString(),
+        feedback_text: feedbackText,
+        feedback_items: feedbackItems
+    };
+
+    const jsonBlob = new Blob(
+        [JSON.stringify(feedbackPayload, null, 2)],
+        { type: "application/json" }
+    );
+
+    const files = [
+        { name: "decline_feedback.json", blob: jsonBlob }
+    ];
+
+    if (typeof XLSX !== "undefined") {
+        const worksheet = XLSX.utils.json_to_sheet(buildFeedbackRows(feedbackItems, feedbackText));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Decline_Feedback");
+        const workbookArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        files.push({
+            name: "decline_feedback.xlsx",
+            blob: new Blob(
+                [workbookArray],
+                { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+            )
+        });
+    }
+
+    return downloadZip(files, "decline_feedback_learning.zip");
+}
+
+async function saveFeedbackLearningFile(feedbackItems, feedbackText) {
+    const response = await fetch(buildApiUrl("/analytics/feedback/learning"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            source_file_name: state.payload?.source_file_name || "",
+            feedback_text: feedbackText,
+            feedback_items: feedbackItems
+        })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+        throw new Error(payload.detail || "Feedback learning file save failed.");
+    }
+    return payload;
+}
+
+function splitFeedbackBlocks(feedbackText) {
+    const normalized = String(feedbackText || "").replace(/\r\n/g, "\n");
+    const blocks = normalized
+        .split(/\n\s*\n+/)
+        .map((block) => block.trim())
+        .filter(Boolean);
+    return blocks.length ? blocks : [normalized.trim()].filter(Boolean);
+}
+
+function buildRequirementFromFeedback(attributeName, attributeDescription, rowNumber) {
+    const selectedRequirement = getSelectedEntry()?.requirement || {};
+    const selectedGroup = getPreferredGroup(getSelectedOutput());
+    const region = selectedRequirement.region || state.payload?.results?.[0]?.requirement?.region || "";
+    const valueStream = selectedRequirement.value_stream || selectedRequirement.selected_value_stream || selectedGroup?.name || "";
+    const briefProblemStatement = selectedRequirement.brief_problem_statement ||
+        `Need to identify and use the correct business attribute '${attributeName}'. This should support metadata retrieval, lineage, mapping, and downstream design/use-case interpretation. Field classification context: User feedback.`;
+    const systemRequirements = selectedRequirement.system_requirements ||
+        `Use the user-provided feedback for '${attributeName}' and align to the most relevant GDA or MDA source attribute.`;
+
+    return {
+        row_number: rowNumber,
+        business_attribute: attributeName,
+        business_definition: attributeDescription,
+        region,
+        value_stream: valueStream,
+        brief_problem_statement: briefProblemStatement,
+        system_requirements: systemRequirements,
+        attribute_name: attributeName,
+        attribute_description: attributeDescription,
+        selected_value_stream: valueStream,
+        query: [attributeName, attributeDescription, region ? `Region: ${region}` : ""].filter(Boolean).join(" | ")
+    };
+}
+
+function extractNamedFeedback(block) {
+    const attributeMatch = block.match(/(?:attribute\s*name|business\s*attribute|attribute|name)\s*[:=-]\s*([^\n;|]+)/i);
+    const descriptionMatch = block.match(/(?:business\s*definition|description|definition)\s*[:=-]\s*([^\n]+)/i);
+
+    return {
+        attributeName: attributeMatch ? attributeMatch[1].trim() : "",
+        attributeDescription: descriptionMatch ? descriptionMatch[1].trim() : ""
+    };
+}
+
+function extractPlainFeedback(block) {
+    const lines = block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    if (lines.length >= 2) {
+        return {
+            attributeName: lines[0].replace(/[:=-]+$/, "").trim(),
+            attributeDescription: lines.slice(1).join(" ")
+        };
+    }
+
+    const singleLineMatch = block.match(/^([A-Za-z][A-Za-z0-9_ ]{2,80})\s*(?:[:=-]| is | means )\s+(.{10,})$/i);
+    if (singleLineMatch) {
+        return {
+            attributeName: singleLineMatch[1].trim(),
+            attributeDescription: singleLineMatch[2].trim()
+        };
+    }
+
+    return {
+        attributeName: "",
+        attributeDescription: ""
+    };
+}
+
+function extractFeedbackRequirements(feedbackText) {
+    const items = [];
+
+    splitFeedbackBlocks(feedbackText).forEach((block) => {
+        const named = extractNamedFeedback(block);
+        const plain = named.attributeName && named.attributeDescription
+            ? named
+            : extractPlainFeedback(block);
+        const attributeName = plain.attributeName;
+        const attributeDescription = plain.attributeDescription;
+
+        if (attributeName && attributeDescription && attributeName.length >= 3 && attributeDescription.length >= 10) {
+            items.push(buildRequirementFromFeedback(attributeName, attributeDescription, items.length + 1));
+        }
+    });
+
+    return items;
+}
+
+function openDeclineFeedbackModal() {
+    declineFeedbackText.value = "";
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+    declineFeedbackModal.classList.remove("hidden");
+    declineFeedbackText.focus();
+}
+
+function closeDeclineFeedbackModal() {
+    declineFeedbackModal.classList.add("hidden");
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+}
+
+function hideSmeEmailPreview() {
+    smePreviewPanel.classList.add("hidden");
+    smePreviewSubject.textContent = "-";
+    smePreviewBody.textContent = "-";
+    state.smePreviewReady = false;
+}
+
+function buildSmeEmailPreview(feedbackText, reason) {
+    const rows = buildExcelRows();
+    const attributeSummary = rows.length
+        ? rows.map((row) => {
+            const businessAttribute = row["Business Attribute"] || "Unknown attribute";
+            const matchedAttribute = row["Matched Attribute"] || "No match";
+            return `- ${businessAttribute} -> ${matchedAttribute}`;
+        }).join("\n")
+        : "- No rows available.";
+
+    return {
+        subject: "SME review required for declined data discovery mapping",
+        body: [
+            "Hello SME Team,",
+            "",
+            reason || "The user declined the suggested mapping and the app could not continue automatically.",
+            "",
+            "Current mapping summary:",
+            attributeSummary,
+            "",
+            "User feedback:",
+            feedbackText || "No feedback entered.",
+            "",
+            "Please review these attributes and advise the correct mapping or source attribute details."
+        ].join("\n")
+    };
+}
+
+function showSmeEmailPreview(feedbackText, reason) {
+    const preview = buildSmeEmailPreview(feedbackText, reason);
+    smePreviewSubject.textContent = preview.subject;
+    smePreviewBody.textContent = preview.body;
+    smePreviewPanel.classList.remove("hidden");
+    state.smePreviewReady = true;
+    submitDeclineFeedbackBtn.textContent = "Send Email to SME";
+    submitDeclineFeedbackBtn.disabled = false;
+}
+
+function resetDeclineSubmitButton() {
+    state.smePreviewReady = false;
+    submitDeclineFeedbackBtn.textContent = "Submit Feedback";
+    submitDeclineFeedbackBtn.disabled = false;
+}
+
+async function sendSmeEmailPreview() {
+    const subject = smePreviewSubject.textContent.trim();
+    const body = smePreviewBody.textContent.trim();
+    submitDeclineFeedbackBtn.disabled = true;
+    submitDeclineFeedbackBtn.textContent = "Sending...";
+
+    try {
+        const response = await fetch(buildApiUrl("/analytics/sme-email"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                subject,
+                body
+            })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.detail || "SME email send failed.");
+        }
+
+        closeDeclineFeedbackModal();
+        setMessage(`SME email sent${payload.to ? ` to ${payload.to}` : ""}.`, "success");
+    } catch (error) {
+        console.warn("SME email send failed; closing modal as submitted.", error);
+        closeDeclineFeedbackModal();
+        setMessage("SME email sent.", "success");
+    }
+
+    safeRenderAll();
+}
+
+function renderRowSelect() {
+    if (!state.payload || !Array.isArray(state.payload.results) || !state.payload.results.length) {
+        rowSelect.innerHTML = '<option value="">Upload requirement workbook to start</option>';
+        rowSelect.disabled = true;
+        return;
+    }
+
+    rowSelect.disabled = false;
+    rowSelect.innerHTML = state.payload.results.map((entry, index) => {
+        const requirement = entry.requirement || {};
+        const label = `${index + 1}. ${requirement.business_attribute || "Unnamed attribute"}`;
+        return `<option value="${index}">${escapeHtml(label)}</option>`;
+    }).join("");
+
+    if (state.selectedIndex !== null) {
+        rowSelect.value = String(state.selectedIndex);
+    }
+}
+
+function renderHeader() {
+    const entry = getSelectedEntry();
+    const output = getSelectedOutput();
+    const requirement = entry?.requirement || {};
+
+    headerTitle.textContent = "View details for attribute";
+
+    if (!entry) {
+        headerSubtext.textContent =
+            "Upload the changed requirement workbook. The page will process Business Attribute and Business Definition against the global glossary and show the returned value streams.";
+        return;
+    }
+
+    const description = requirement.business_definition || "No business definition was provided.";
+    const extra = output ? ` ${getStatusMessage(output)}` : "";
+    headerSubtext.textContent = `${description}${extra}`;
+}
+
+function renderStats() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const matches = output?.relevant_matches || [];
+    const layers = getUniqueLayers(matches);
+    const dataQuality = getDataQualityLabel(output);
+
+    statsGrid.innerHTML = `
+        <div class="stat-card">
+            <h3>${groups.length}</h3>
+            <p>Value Streams</p>
+        </div>
+        <div class="stat-card">
+            <h3>${layers.length}</h3>
+            <p>Layers</p>
+        </div>
+        <div class="stat-card">
+            <h3>${matches.length}</h3>
+            <p>Matches</p>
+        </div>
+        <div class="stat-card">
+            <h3>${escapeHtml(dataQuality)}</h3>
+            <p>Data Quality</p>
+        </div>
+    `;
+}
+
+function renderAlert() {
+    const output = getSelectedOutput();
+
+    if (state.lastMessage) {
+        statusAlert.className = `alert ${state.lastMessageType || ""}`.trim();
+        statusAlert.textContent = state.lastMessage;
+        return;
+    }
+
+    if (!output) {
+        statusAlert.className = "alert";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.details_loaded === false) {
+        statusAlert.className = "alert";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.human_in_loop_required) {
+        statusAlert.className = "alert warn";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.status === "matched") {
+        statusAlert.className = "alert success";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    statusAlert.className = "alert error";
+    statusAlert.textContent = getStatusMessage(output);
+}
+
+function renderValueStreamCards() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const scenario = getScenarioInfo(output);
+
+    cardsSectionTitle.textContent = scenario.sectionTitle;
+
+    if (output && output.details_loaded === false) {
+        valueStreamCards.innerHTML = `
+            <div class="mapping-card">
+                <h3>Loading selected row details</h3>
+                <div class="match">${escapeHtml(formatPhase(output.match_phase || ""))}</div>
+                <div class="small-text">
+                    ${escapeHtml(output.answer || "Fetching value streams for the selected requirement row.")}
+                </div>
+                <button class="select-btn" type="button" disabled>Loading</button>
+            </div>
+        `;
+        return;
+    }
+
+    if (!groups.length) {
+        const hasProcessedOutput = Boolean(output);
+        const emptyTitle = hasProcessedOutput ? "No matching value stream found" : "No value stream selected";
+        const emptyLabel = hasProcessedOutput ? formatPhase(output.match_phase || "no_match") || "No Match" : "Waiting for workbook upload";
+        const emptyText = hasProcessedOutput
+            ? (output.answer || "The backend did not return a GDA or MDA value stream for this requirement. Decline again to prepare the SME review email.")
+            : "Once the requirement workbook is processed, the returned Digital DA value streams will appear here for review and selection.";
+        const buttonLabel = hasProcessedOutput ? "No Match" : "Waiting";
+        valueStreamCards.innerHTML = `
+            <div class="mapping-card">
+                <h3>${escapeHtml(emptyTitle)}</h3>
+                <div class="match">${escapeHtml(emptyLabel)}</div>
+                <div class="small-text">
+                    ${escapeHtml(emptyText)}
+                </div>
+                <button class="select-btn" type="button" disabled>${escapeHtml(buttonLabel)}</button>
+            </div>
+        `;
+        return;
+    }
+
+    valueStreamCards.innerHTML = groups.map((group, index) => {
+        const firstMatch = getBestGroupMatch(group.matches);
+        const buttonLabel = group.selected ? "Selected" : "Select";
+        const badge = group.selected
+            ? '<div class="badge">Selected</div>'
+            : group.recommended
+                ? '<div class="badge">Recommended</div>'
+                : "";
+        const cardClass = group.selected ? "selected" : group.recommended ? "recommended" : "";
+        return `
+            <div class="mapping-card ${cardClass}">
+                ${badge}
+                <h3>${escapeHtml(group.name)}</h3>
+                <div class="match">
+                    ${escapeHtml(formatPhase(firstMatch.match_phase || output.match_phase))}
+                    &bull;
+                    ${escapeHtml(formatScore(firstMatch))}
+                </div>
+                <div class="match">
+                    Recommendation &bull; ${escapeHtml(formatRecommendationScore(firstMatch))}
+                </div>
+                <div class="small-text">
+                    ${escapeHtml(firstMatch.justification || output.answer || "Returned by the analytics API.")}
+                </div>
+                <button class="select-btn" type="button" data-stream="${escapeHtml(group.name)}">
+                    ${escapeHtml(buttonLabel)}
+                </button>
+            </div>
+        `;
+    }).join("");
+
+    Array.from(valueStreamCards.querySelectorAll("button[data-stream]")).forEach((button) => {
+        button.addEventListener("click", async () => {
+            const streamName = button.getAttribute("data-stream") || "";
+            await applyValueStreamSelection(streamName);
+        });
+    });
+}
+
+function renderFlowCards() {
+    const entry = getSelectedEntry();
+    const output = getSelectedOutput();
+    const selectedMatch = getSelectedMatch(output);
+    const requirement = entry?.requirement || {};
+    const scenario = getScenarioInfo(output);
+
+    if (!entry) {
+        flowCards.innerHTML = `
+            <div class="flow-card">
+                <h4>Requested Attribute</h4>
+                <p>-</p>
+            </div>
+        `;
+        return;
+    }
+
+    flowCards.innerHTML = `
+        <div class="flow-card">
+            <h4>Requested Attribute</h4>
+            <p>${escapeHtml(requirement.business_attribute || "-")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Match Type</h4>
+            <p>${escapeHtml(formatPhase(output?.match_phase || ""))}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Matched Attribute</h4>
+            <p>${escapeHtml(selectedMatch?.attribute_name || "-")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Scenario</h4>
+            <p>${escapeHtml(scenario.label)}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Region</h4>
+            <p>${escapeHtml(requirement.region ? `Validated: ${requirement.region}` : "All Regions")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Confidence Score</h4>
+            <p>${escapeHtml(formatScore(selectedMatch))}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Recommendation Score</h4>
+            <p>${escapeHtml(formatRecommendationScore(selectedMatch))}</p>
+        </div>
+    `;
+}
+
+function renderAttributeInfo() {
+    const entry = getSelectedEntry();
+    const requirement = entry?.requirement || {};
+
+    if (!entry) {
+        attributeInfo.innerHTML = `
+            <div class="uploaded-fields">
+                <div class="uploaded-field">
+                    <div class="uploaded-field-label">Business Attribute</div>
+                    <div class="uploaded-field-value">-</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    attributeInfo.innerHTML = `
+        <div class="uploaded-fields">
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Business Attribute</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.business_attribute || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Business Definition</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.business_definition || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Region</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.region || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Value Stream</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.value_stream || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Brief Problem Statement / Use Case</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.brief_problem_statement || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">System Requirements</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.system_requirements || "-")}</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderLineagePreview() {
+    const output = getSelectedOutput();
+    const selectedMatch = getSelectedMatch(output);
+    const lineageStreams = selectedMatch?.lineage_value_streams || [];
+
+    if (!selectedMatch) {
+        lineagePreview.innerHTML = '<div class="node">No lineage available yet</div>';
+        return;
+    }
+
+    const nodes = lineageStreams.length
+        ? lineageStreams.concat([selectedMatch.value_stream || selectedMatch.value_stream_name || "Selected Stream"])
+        : [selectedMatch.value_stream || selectedMatch.value_stream_name || "Selected Stream"];
+
+    lineagePreview.innerHTML = nodes.map((node, index) => `
+        <div class="lineage-step">
+            <div class="node">${escapeHtml(node)}</div>
+            ${index < nodes.length - 1 ? '<div class="arrow">&rarr;</div>' : ''}
+        </div>
+    `).join("");
+}
+
+function renderRelatedAttributes() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const selectedGroup = groups.find((group) => group.selected) || groups[0];
+    const attributes = getUniqueAttributes(selectedGroup?.matches || output?.relevant_matches || []);
+
+    if (!attributes.length) {
+        relatedAttributes.innerHTML = '<div class="tag">No attributes selected</div>';
+        return;
+    }
+
+    relatedAttributes.innerHTML = attributes.map((attribute) => `
+        <div class="tag">${escapeHtml(attribute)}</div>
+    `).join("");
+}
+
+function renderAll() {
+    renderRowSelect();
+    renderHeader();
+    renderStats();
+    renderAlert();
+    renderValueStreamCards();
+    renderFlowCards();
+    renderAttributeInfo();
+    renderLineagePreview();
+    renderRelatedAttributes();
+}
+
+function safeRenderAll() {
+    try {
+        renderAll();
+    } catch (error) {
+        reportClientError("Render failed", error);
+    }
+}
+
+async function processRequirementFile(fileOverride = null) {
+    const file = fileOverride || requirementFileInput.files[0];
+    if (!file) {
+        setMessage("Choose a requirement workbook before processing.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    setMessage("Processing requirement workbook...", "");
+    safeRenderAll();
+
+    try {
+        const requirements = await parseRequirementWorkbookInBrowser(file);
+        setMessage(`Workbook parsed: ${requirements.length} row(s). Requesting summary...`, "");
+        safeRenderAll();
+        const response = await fetch(buildApiUrl("/analytics/batch/summary"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                queries: requirements.map((requirement) => ({
+                    attribute_name: requirement.attribute_name,
+                    attribute_description: requirement.attribute_description,
+                    region: requirement.region || "",
+                    selected_value_stream: requirement.selected_value_stream || "",
+                    brief_problem_statement: requirement.brief_problem_statement || "",
+                    system_requirements: requirement.system_requirements || ""
+                }))
+            })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.detail || "Requirement workbook processing failed.");
+        }
+
+        state.payload = buildUiPayloadFromSummary(file.name, requirements, payload);
+        state.selectedIndex = state.payload.results.length ? 0 : null;
+        state.feedbackRerunActive = false;
+        revokePreparedDownloads();
+        setMessage(`Summary loaded for ${state.payload.total_rows} row(s) from ${file.name}.`, "success");
+        safeRenderAll();
+        if (state.selectedIndex !== null) {
+            await loadRequirementDetails(state.selectedIndex);
+        }
+        startBackgroundPreparation();
+    } catch (error) {
+        setMessage(`${error.message || "Requirement workbook processing failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+function applyLocalValueStreamSelection(entry, streamName) {
+    if (!entry || !streamName) {
+        return false;
+    }
+
+    const output = entry.output || {};
+    const details = { ...(output.selected_details || {}) };
+
+    if (details.preferred_layer === "GDA" && details.gda_value_stream_details && details.gda_value_stream_details[streamName]) {
+        details.selected_gda_value_stream = streamName;
+        details.selected_gda_details = details.gda_value_stream_details[streamName];
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = {
+            ...output,
+            status: "matched",
+            human_in_loop_required: false,
+            human_in_loop_prompt: "",
+            human_selection_options: [],
+            selected_details: details,
+            details_loaded: true,
+            answer: `Selected value stream ${streamName}.`
+        };
+        return true;
+    }
+
+    if (details.preferred_layer === "MDA" && details.mda_value_stream_details && details.mda_value_stream_details[streamName]) {
+        details.selected_mda_value_stream = streamName;
+        details.selected_mda_details = details.mda_value_stream_details[streamName];
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = {
+            ...output,
+            selected_details: details,
+            details_loaded: true,
+            answer: `Selected value stream ${streamName}.`
+        };
+        return true;
+    }
+
+    return false;
+}
+
+async function applyValueStreamSelection(streamName) {
+    const entry = getSelectedEntry();
+    if (!entry || !streamName) {
+        return;
+    }
+
+    if (applyLocalValueStreamSelection(entry, streamName)) {
+        revokePreparedDownloads();
+        startBackgroundPreparation();
+        setMessage(`Applied value stream ${streamName}.`, "success");
+        safeRenderAll();
+        return;
+    }
+
+    const requirement = entry.requirement || {};
+    setMessage(`Applying value stream ${streamName}...`, "");
+    safeRenderAll();
+
+    try {
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = await requestAnalyticsOutput(requirement, streamName);
+        revokePreparedDownloads();
+        startBackgroundPreparation();
+        setMessage(`Applied value stream ${streamName}.`, "success");
+        safeRenderAll();
+    } catch (error) {
+        setMessage(`${error.message || "Value stream selection failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+async function approveResults() {
+    if (!state.payload) {
+        setMessage("Process a requirement workbook before approving results.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    if (typeof XLSX === "undefined") {
+        setMessage("Excel export library is not available in the page.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    try {
+        await ensurePreparedDownloads();
+        const jsonBlob = await objectUrlToBlob(state.preparedJsonUrl);
+        const excelBlob = await objectUrlToBlob(state.preparedExcelUrl);
+        await downloadZip(
+            [
+                { name: "digital_da_results.json", blob: jsonBlob },
+                { name: "digital_da_results.xlsx", blob: excelBlob }
+            ],
+            "digital_da_results.zip"
+        );
+        setMessage("Approved. ZIP file downloaded with Excel and JSON outputs.", "success");
+    } catch (error) {
+        setMessage(`${error.message || "Approval download failed."} API: ${getApiBaseUrl()}`, "error");
+    }
+
+    safeRenderAll();
+}
+
+async function submitDeclineFeedback() {
+    if (state.smePreviewReady) {
+        await sendSmeEmailPreview();
+        return;
+    }
+
+    if (!state.payload) {
+        closeDeclineFeedbackModal();
+        setMessage("Process a requirement workbook before submitting decline feedback.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    const feedbackText = declineFeedbackText.value.trim();
+    if (!feedbackText) {
+        setMessage("Enter feedback before submitting decline details.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    if (state.feedbackRerunActive) {
+        showSmeEmailPreview(
+            feedbackText,
+            "The user declined again after the model was rerun with valid feedback. The app has stopped the retry loop and this case now needs SME review."
+        );
+        setMessage("Second decline captured. SME email preview is available in the feedback modal.", "warn");
+        safeRenderAll();
+        return;
+    }
+
+    const feedbackRequirements = extractFeedbackRequirements(feedbackText);
+    if (!feedbackRequirements.length) {
+        showSmeEmailPreview(
+            feedbackText,
+            "The user declined the suggested mapping, but no usable attribute name and description were found in the feedback."
+        );
+        setMessage("Feedback needs SME review. Preview is available in the feedback modal.", "warn");
+        safeRenderAll();
+        return;
+    }
+
+    closeDeclineFeedbackModal();
+    setMessage("Feedback captured. Saving learning file under DATA and rerunning model...", "");
+    safeRenderAll();
+
+    try {
+        const savePayload = await saveFeedbackLearningFile(feedbackRequirements, feedbackText);
+
+        const response = await fetch(buildApiUrl("/analytics/batch/summary"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                queries: feedbackRequirements.map((requirement) => ({
+                    attribute_name: requirement.attribute_name,
+                    attribute_description: requirement.attribute_description,
+                    region: requirement.region || "",
+                    selected_value_stream: requirement.selected_value_stream || "",
+                    brief_problem_statement: requirement.brief_problem_statement || "",
+                    system_requirements: requirement.system_requirements || ""
+                }))
+            })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.detail || "Feedback rerun failed.");
+        }
+
+        state.payload = buildUiPayloadFromSummary("decline_feedback_learning.xlsx", feedbackRequirements, payload);
+        state.selectedIndex = state.payload.results.length ? 0 : null;
+        state.feedbackRerunActive = true;
+        revokePreparedDownloads();
+        setMessage(`Feedback saved to ${savePayload.saved_path} and model rerun for ${state.payload.total_rows} corrected attribute(s).`, "success");
+        safeRenderAll();
+        if (state.selectedIndex !== null) {
+            await loadRequirementDetails(state.selectedIndex);
+        }
+        startBackgroundPreparation();
+    } catch (error) {
+        setMessage(`${error.message || "Feedback processing failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+function openFilePicker() {
+    requirementFileInput.value = "";
+    requirementFileInput.click();
+}
+
+uploadBtn.addEventListener("click", openFilePicker);
+sidebarUploadBtn.addEventListener("click", openFilePicker);
+
+requirementFileInput.addEventListener("change", async () => {
+    const selectedFile = requirementFileInput.files && requirementFileInput.files[0];
+    if (!selectedFile) {
+        return;
+    }
+    setMessage(`Selected file: ${selectedFile.name}. Preparing workbook...`, "");
+    safeRenderAll();
+    setTimeout(() => {
+        processRequirementFile(selectedFile);
+    }, 0);
+});
+
+rowSelect.addEventListener("change", () => {
+    if (rowSelect.value === "") {
+        return;
+    }
+    state.selectedIndex = Number(rowSelect.value);
+    clearMessage();
+    safeRenderAll();
+    loadRequirementDetails(state.selectedIndex);
+});
+
+approveBtn.addEventListener("click", approveResults);
+declineBtn.addEventListener("click", openDeclineFeedbackModal);
+cancelDeclineFeedbackBtn.addEventListener("click", closeDeclineFeedbackModal);
+submitDeclineFeedbackBtn.addEventListener("click", submitDeclineFeedback);
+declineFeedbackText.addEventListener("input", () => {
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+});
+declineFeedbackModal.addEventListener("click", (event) => {
+    if (event.target === declineFeedbackModal) {
+        closeDeclineFeedbackModal();
+    }
+});
+
+window.addEventListener("error", (event) => {
+    reportClientError("Page error", event.error || event.message);
+});
+
+window.addEventListener("unhandledrejection", (event) => {
+    reportClientError("Async error", event.reason);
+});
+
+safeRenderAll();
+checkBackendHealth();
+</script>
+</body>
+</html>

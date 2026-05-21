@@ -1,0 +1,3616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digital DA.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#f5f7fb;
+    color:#1e1e1e;
+}
+
+.hidden{
+    display:none !important;
+}
+
+.file-input-hidden{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0, 0, 0, 0);
+    white-space:nowrap;
+    border:0;
+    opacity:0;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:240px;
+    background:#07142d;
+    color:white;
+    padding:24px 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:40px;
+}
+
+.logo span{
+    color:#8b7dff;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.nav-item{
+    padding:14px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+    color:#d7def5;
+    font-weight:500;
+}
+
+.nav-item:hover{
+    background:#17274a;
+}
+
+.nav-item.active{
+    background:#6f5cff;
+    color:white;
+}
+
+.help-card{
+    background:#0d1d3f;
+    border-radius:18px;
+    padding:18px;
+}
+
+.help-card h4{
+    margin-bottom:10px;
+}
+
+.help-card p{
+    font-size:13px;
+    color:#b9c3df;
+    line-height:1.5;
+}
+
+.help-card button{
+    width:100%;
+    margin-top:16px;
+    background:#6f5cff;
+    border:none;
+    color:white;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.main{
+    flex:1;
+    display:flex;
+}
+
+.center{
+    flex:1;
+    padding:28px;
+    overflow-y:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:28px;
+}
+
+.search-box{
+    flex:1;
+    background:white;
+    border-radius:14px;
+    padding:14px 18px;
+    border:1px solid #e2e6f0;
+}
+
+.row-select{
+    width:100%;
+    border:none;
+    outline:none;
+    font-size:16px;
+    background:transparent;
+    color:#1e1e1e;
+    font-family:'Inter',sans-serif;
+}
+
+.filter-btn{
+    background:white;
+    border:1px solid #e1e4ef;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.topbar-side{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.api-indicator{
+    background:white;
+    border:1px solid #e1e4ef;
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:13px;
+    color:#667085;
+    white-space:nowrap;
+}
+
+.header-title{
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:14px;
+}
+
+.subtext{
+    color:#667085;
+    line-height:1.6;
+    margin-bottom:24px;
+    max-width:850px;
+}
+
+.stats{
+    display:flex;
+    gap:18px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+}
+
+.stat-card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    min-width:150px;
+    border:1px solid #ebedf4;
+    flex:1;
+}
+
+.stat-card h3{
+    font-size:28px;
+    margin-bottom:8px;
+}
+
+.stat-card p{
+    color:#7a8092;
+    font-size:14px;
+}
+
+.alert{
+    background:#edf4ff;
+    border:1px solid #d9e8ff;
+    padding:18px;
+    border-radius:16px;
+    margin-bottom:28px;
+    color:#35548a;
+    line-height:1.6;
+}
+
+.alert.success{
+    background:#edf8f0;
+    border-color:#cdebd5;
+    color:#237443;
+}
+
+.alert.error{
+    background:#fff1f0;
+    border-color:#ffd4d1;
+    color:#a13f37;
+}
+
+.alert.warn{
+    background:#fff7ea;
+    border-color:#ffe0ad;
+    color:#99641d;
+}
+
+.section-title{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.cards{
+    display:flex;
+    gap:18px;
+    margin-bottom:34px;
+    flex-wrap:wrap;
+}
+
+.mapping-card{
+    background:white;
+    border-radius:20px;
+    border:1px solid #e6eaf2;
+    padding:22px;
+    flex:1;
+    min-width:240px;
+    min-height:280px;
+    position:relative;
+}
+
+.mapping-card.recommended{
+    border:2px solid #57c67a;
+    box-shadow:0 8px 24px rgba(87,198,122,0.12);
+}
+
+.mapping-card.selected{
+    border:2px solid #57c67a;
+    box-shadow:0 10px 28px rgba(87,198,122,0.18);
+}
+
+.badge{
+    display:inline-block;
+    background:#eafbf0;
+    color:#2f9d57;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:18px;
+}
+
+.mapping-card h3{
+    margin-bottom:16px;
+    font-size:22px;
+    word-break:break-word;
+}
+
+.match{
+    background:#f5f7fb;
+    padding:10px 12px;
+    border-radius:10px;
+    margin-bottom:16px;
+    font-weight:600;
+}
+
+.small-text{
+    color:#6f7483;
+    font-size:14px;
+    line-height:1.6;
+    padding-bottom:64px;
+}
+
+.select-btn{
+    position:absolute;
+    bottom:22px;
+    left:22px;
+    right:22px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#6f5cff;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.flow{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    margin-top:18px;
+    padding-bottom:6px;
+}
+
+.flow-card{
+    min-width:160px;
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    border:1px solid #e5e8f2;
+}
+
+.flow-card h4{
+    margin-bottom:10px;
+    font-size:15px;
+}
+
+.flow-card p{
+    color:#596071;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.right-panel{
+    width:460px;
+    background:white;
+    border-left:1px solid #e8ebf3;
+    padding:28px;
+    overflow-y:auto;
+}
+
+.panel-title{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:26px;
+}
+
+.detail-box{
+    border:1px solid #edf0f5;
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:22px;
+}
+
+.detail-box h4{
+    margin-bottom:18px;
+    font-size:18px;
+}
+
+.info-row{
+    display:grid;
+    grid-template-columns:minmax(170px, 220px) minmax(0, 1fr);
+    align-items:start;
+    gap:12px 18px;
+    margin-bottom:14px;
+}
+
+.uploaded-fields{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.uploaded-field{
+    background:#f8faff;
+    border:1px solid #e5ebf5;
+    border-radius:14px;
+    padding:14px 16px;
+}
+
+.uploaded-field-label{
+    font-size:13px;
+    font-weight:600;
+    color:#667085;
+    margin-bottom:8px;
+    line-height:1.4;
+}
+
+.uploaded-field-value{
+    font-size:15px;
+    font-weight:500;
+    color:#1e1e1e;
+    line-height:1.6;
+    white-space:pre-wrap;
+    overflow-wrap:break-word;
+    word-break:normal;
+}
+
+.label{
+    color:#6c7385;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+}
+
+.value{
+    font-weight:600;
+    text-align:left;
+    min-width:0;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    line-height:1.5;
+}
+
+.lineage{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:18px;
+    margin-top:18px;
+}
+
+.lineage-step{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.node{
+    background:#f5f7fb;
+    border:1px solid #dce2ef;
+    border-radius:12px;
+    padding:16px 24px;
+    font-size:13px;
+    font-weight:600;
+    min-width:230px;
+}
+
+.arrow{
+    font-size:30px;
+    color:#7f87a0;
+    line-height:1;
+}
+
+.related-tags{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+.tag{
+    background:#f1f3fb;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:13px;
+}
+
+.footer-actions{
+    display:flex;
+    gap:14px;
+    margin-top:24px;
+}
+
+.footer-actions button{
+    flex:1;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.secondary{
+    background:#f3f5fb;
+}
+
+.primary{
+    background:#6f5cff;
+    color:white;
+}
+
+.danger{
+    background:#fff1f1;
+    color:#b42318;
+}
+
+.modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(7, 20, 45, 0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:20;
+}
+
+.feedback-modal{
+    width:min(920px, 100%);
+    max-height:calc(100vh - 48px);
+    overflow:auto;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 24px 70px rgba(7, 20, 45, 0.22);
+    padding:0;
+}
+
+.feedback-modal-header{
+    position:relative;
+    padding:24px 28px 18px;
+    padding-right:64px;
+    border-bottom:1px solid #e8ebf3;
+}
+
+.feedback-modal h3{
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+.feedback-modal p{
+    color:#5b6478;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.feedback-modal-body{
+    padding:24px 28px;
+}
+
+.feedback-modal textarea{
+    width:100%;
+    min-height:220px;
+    resize:vertical;
+    border:1px solid #dce2ef;
+    border-radius:10px;
+    padding:14px;
+    font-family:inherit;
+    font-size:14px;
+    line-height:1.5;
+    color:#1e1e1e;
+}
+
+.feedback-help-text{
+    margin-bottom:12px;
+}
+
+.sme-preview-panel{
+    margin-top:18px;
+    border:1px solid #fed7aa;
+    background:#fffbeb;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.sme-preview-header{
+    padding:16px 18px;
+    border-bottom:1px solid #fed7aa;
+}
+
+.sme-preview-header h4{
+    font-size:16px;
+    margin-bottom:6px;
+    color:#92400e;
+}
+
+.sme-preview-body{
+    padding:18px;
+    display:grid;
+    gap:14px;
+}
+
+.sme-preview-field{
+    background:white;
+    border:1px solid #fde68a;
+    border-radius:10px;
+    padding:14px;
+}
+
+.sme-preview-label{
+    color:#92400e;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    margin-bottom:8px;
+}
+
+.sme-preview-value{
+    color:#1e1e1e;
+    font-size:14px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    padding:18px 28px 24px;
+    border-top:1px solid #e8ebf3;
+}
+
+.modal-actions button{
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    padding:12px 18px;
+}
+
+.modal-close-btn{
+    position:absolute;
+    top:18px;
+    right:20px;
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:50%;
+    background:#f3f5fb;
+    color:#30384d;
+    cursor:pointer;
+    font-size:22px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.modal-close-btn:hover{
+    background:#e8ebf3;
+}
+
+.approve-preview-modal{
+    width:min(1180px, 100%);
+}
+
+.approve-preview-summary{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:16px;
+    color:#5b6478;
+    font-size:13px;
+    flex-wrap:wrap;
+}
+
+.approve-preview-table-wrap{
+    max-height:52vh;
+    overflow:auto;
+    border:1px solid #e8ebf3;
+    border-radius:10px;
+    background:white;
+}
+
+.approve-preview-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:980px;
+    font-size:12px;
+}
+
+.approve-preview-table th,
+.approve-preview-table td{
+    border-bottom:1px solid #edf0f7;
+    border-right:1px solid #edf0f7;
+    padding:10px 12px;
+    text-align:left;
+    vertical-align:top;
+    max-width:260px;
+    overflow-wrap:anywhere;
+}
+
+.approve-preview-table th{
+    position:sticky;
+    top:0;
+    z-index:1;
+    background:#f7f8fc;
+    color:#30384d;
+    font-weight:700;
+}
+
+.approve-preview-table td{
+    color:#3f485c;
+    line-height:1.45;
+}
+
+.empty-preview{
+    border:1px dashed #cfd6e6;
+    border-radius:10px;
+    padding:24px;
+    color:#5b6478;
+    background:#f9fbff;
+}
+
+.score-summary-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:#f4f6fb;
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:12px;
+    font-weight:700;
+    flex-wrap:wrap;
+}
+
+.score-details-toggle{
+    border:1px solid #dce2ef;
+    background:white;
+    color:#4f46e5;
+    cursor:pointer;
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.score-details-toggle:hover{
+    border-color:#b8c1d6;
+    background:#f8f9ff;
+}
+
+.score-details-panel{
+    margin:10px 0 14px;
+    padding:12px 14px;
+    border:1px solid #dce2ef;
+    border-radius:8px;
+    background:#fbfcff;
+    color:#5b6478;
+    font-size:13px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+}
+
+.preview-score-details{
+    margin:8px 0 0;
+    max-width:360px;
+}
+
+.modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(7,20,45,0.55);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+}
+
+.modal-overlay.open{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+    border-radius:20px;
+    padding:32px;
+    max-width:560px;
+    width:90%;
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 24px 60px rgba(0,0,0,0.18);
+    position:relative;
+}
+
+.modal-close{
+    position:absolute;
+    top:18px;
+    right:20px;
+    background:none;
+    border:none;
+    font-size:22px;
+    cursor:pointer;
+    color:#667085;
+    line-height:1;
+}
+
+.modal-close:hover{
+    color:#1e1e1e;
+}
+
+.modal-title{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:6px;
+    padding-right:28px;
+}
+
+.modal-subtitle{
+    font-size:13px;
+    color:#667085;
+    margin-bottom:24px;
+}
+
+.modal-step{
+    display:flex;
+    gap:14px;
+    margin-bottom:18px;
+    align-items:flex-start;
+}
+
+.modal-step-num{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#6f5cff;
+    color:white;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    margin-top:1px;
+}
+
+.modal-step-body{
+    flex:1;
+}
+
+.modal-step-label{
+    font-size:13px;
+    font-weight:600;
+    color:#667085;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:3px;
+}
+
+.modal-step-value{
+    font-size:15px;
+    font-weight:500;
+    color:#1e1e1e;
+    line-height:1.5;
+}
+
+.modal-step-value.highlight{
+    color:#6f5cff;
+    font-weight:700;
+    font-size:16px;
+}
+
+.modal-step-detail{
+    font-size:13px;
+    color:#667085;
+    margin-top:4px;
+    line-height:1.5;
+}
+
+.modal-step-lines{
+    margin-top:6px;
+    font-size:12px;
+    font-family:monospace;
+    background:#f5f7fb;
+    border-radius:10px;
+    padding:10px 14px;
+    line-height:1.8;
+    color:#3a3f55;
+    overflow-wrap:anywhere;
+}
+
+.modal-divider{
+    border:none;
+    border-top:1px solid #edf0f5;
+    margin:6px 0 18px 40px;
+}
+
+@media (max-width: 1200px){
+    .main{
+        flex-direction:column;
+    }
+
+    .right-panel{
+        width:100%;
+        border-left:none;
+        border-top:1px solid #e8ebf3;
+    }
+}
+
+@media (max-width: 900px){
+    .container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        gap:24px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+}
+
+@media (max-width: 640px){
+    .center,
+    .right-panel{
+        padding:18px;
+    }
+
+    .info-row{
+        grid-template-columns:1fr;
+    }
+
+    .value{
+        text-align:left;
+    }
+}
+
+
+
+/* ── Preview table checkboxes ─────────────────────────────────────────────── */
+.approve-preview-table .col-select { width:36px; text-align:center; padding:8px 4px; }
+.approve-preview-table input[type="checkbox"] { width:15px; height:15px; cursor:pointer; accent-color:#6f5cff; }
+.approve-preview-table tr.row-unselected td { opacity:0.4; }
+.approve-preview-table tr.row-unselected .col-select { opacity:1; }
+.preview-counter { font-size:13px; font-weight:600; color:#6f5cff; margin-left:auto; }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                Data Discovery <span>AI</span>
+            </div>
+
+            <div class="nav">
+                <div class="nav-item">Home</div>
+                <div class="nav-item active">Search</div>
+                <div class="nav-item">Glossary</div>
+                <div class="nav-item">Data Assets</div>
+                <div class="nav-item">Lineage</div>
+                <div class="nav-item">Domains</div>
+                <div class="nav-item">Quality</div>
+                <div class="nav-item">Reports</div>
+                <div class="nav-item">Settings</div>
+            </div>
+        </div>
+
+        <div class="help-card">
+            <h4>Need Help?</h4>
+            <p>
+                Upload the Digital DA requirement workbook and review matching
+                value streams, lineage and related attributes from the global glossary.
+            </p>
+            <button id="sidebarUploadBtn" type="button">Upload Requirement File</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="center">
+            <input id="requirementFile" class="file-input-hidden" type="file" accept=".xlsx,.csv" />
+
+            <div class="topbar">
+                <div class="search-box">
+                    <select id="rowSelect" class="row-select">
+                        <option value="">Upload requirement workbook to start</option>
+                    </select>
+                </div>
+
+                <div class="topbar-side">
+                    <div id="apiIndicator" class="api-indicator">API: checking...</div>
+                    <button id="uploadBtn" class="filter-btn" type="button">
+                        Upload File
+                    </button>
+                </div>
+            </div>
+
+            <div id="headerTitle" class="header-title">
+                View details for attribute
+            </div>
+
+            <div id="headerSubtext" class="subtext">
+                Upload the changed requirement workbook. The page will process Business Attribute and
+                Business Definition against the global glossary and show the returned value streams.
+            </div>
+
+            <div id="statsGrid" class="stats">
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Value Streams</p>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Layers</p>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Matches</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Idle</h3>
+                    <p>Status</p>
+                </div>
+            </div>
+
+            <div id="statusAlert" class="alert">
+                Upload a requirement workbook to start the Digital DA workflow.
+            </div>
+
+            <div id="cardsSectionTitle" class="section-title">
+                Select GDA Value Stream
+            </div>
+
+            <div id="valueStreamCards" class="cards">
+                <div class="mapping-card">
+                    <h3>No value stream selected</h3>
+                    <div class="match">Waiting for workbook upload</div>
+                    <div class="small-text">
+                        Once the requirement workbook is processed, the returned Digital DA value streams
+                        will appear here for review and selection.
+                    </div>
+                    <button class="select-btn" type="button" disabled>Waiting</button>
+                </div>
+            </div>
+
+            <div class="section-title">
+                Mapping Flow
+            </div>
+
+            <div id="flowCards" class="flow">
+                <div class="flow-card">
+                    <h4>Requested Attribute</h4>
+                    <p>-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel-title">
+                Attribute Details
+            </div>
+
+            <div class="detail-box">
+                <h4>Requirement Summary</h4>
+                <div id="attributeInfo">
+                    <div class="info-row">
+                        <div class="label">Attribute Name</div>
+                        <div class="value">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-box">
+                <h4>Lineage Preview</h4>
+                <div id="lineagePreview" class="lineage">
+                    <div class="node">No lineage available yet</div>
+                </div>
+            </div>
+
+            <div class="detail-box">
+                <h4>Related Attributes</h4>
+                <div id="relatedAttributes" class="related-tags">
+                    <div class="tag">No attributes selected</div>
+                </div>
+            </div>
+
+            <div class="footer-actions">
+                <button id="approveBtn" class="primary" type="button">
+                    Preview
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="declineFeedbackModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="declineFeedbackTitle">
+    <div class="feedback-modal">
+        <div class="feedback-modal-header">
+            <h3 id="declineFeedbackTitle">Decline &amp; Provide Feedback</h3>
+            <p id="declineFeedbackIntro">Tell us what's wrong and how to fix it.</p>
+        </div>
+        <div class="feedback-modal-body">
+            <!-- Decline reason selection -->
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:500;">
+                    <input type="radio" name="declineReason" id="reasonKnown" value="known" checked style="accent-color:#6f5cff;width:16px;height:16px;">
+                    I know the correct attribute — rerun automatically
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:500;">
+                    <input type="radio" name="declineReason" id="reasonUncertain" value="uncertain" style="accent-color:#6f5cff;width:16px;height:16px;">
+                    Match is uncertain — needs SME review
+                </label>
+            </div>
+
+            <!-- "I know the attribute" panel -->
+            <div id="knownAttrPanel">
+                <p class="feedback-help-text" style="margin-bottom:8px;">Enter the correct attribute name. The system will rerun the search using this as a hint.</p>
+                <input type="text" id="knownAttrInput" placeholder="e.g. assessment_id" style="width:100%;padding:10px 14px;border:1px solid #d0d5e8;border-radius:10px;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
+                <p class="feedback-help-text" style="font-size:12px;color:#98a2b3;">Optionally add context below to help the search.</p>
+                <textarea id="declineFeedbackText" placeholder="Optional: add more context about the correct attribute..." style="height:90px;"></textarea>
+            </div>
+
+            <!-- SME review panel -->
+            <div id="smeAttrPanel" class="hidden">
+                <p class="feedback-help-text">Describe what's wrong. The app will generate an SME email and download a requirement file.</p>
+                <textarea id="declineFeedbackTextSme" placeholder="Example: The matched attribute latest_assessment_id is incorrect. The correct one should be credit_assessment_id in the Risk domain."></textarea>
+            </div>
+            <div id="smePreviewPanel" class="sme-preview-panel hidden">
+                <div class="sme-preview-header">
+                    <h4>SME Email Preview</h4>
+                    <p>This is a preview only. The app is not sending the email yet.</p>
+                </div>
+                <div class="sme-preview-body">
+                    <div class="sme-preview-field">
+                        <div class="sme-preview-label">Subject</div>
+                        <div id="smePreviewSubject" class="sme-preview-value">-</div>
+                    </div>
+                    <div class="sme-preview-field">
+                        <div class="sme-preview-label">Message</div>
+                        <div id="smePreviewBody" class="sme-preview-value">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="cancelDeclineFeedbackBtn" class="secondary" type="button">Cancel</button>
+            <button id="submitDeclineFeedbackBtn" class="primary" type="button">Rerun with Hint</button>
+        </div>
+    </div>
+</div>
+<div id="approvePreviewModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="approvePreviewTitle">
+    <div class="feedback-modal approve-preview-modal">
+
+        <!-- STEP 1: Select rows -->
+        <div id="previewStep1">
+            <div class="feedback-modal-header">
+                <button id="closeApprovePreviewBtn" class="modal-close-btn" type="button" aria-label="Close">&times;</button>
+                <h3 id="approvePreviewTitle">Preview Results</h3>
+                <p>Tick the rows you are happy with. Untick the ones that need attention.</p>
+            </div>
+            <div class="feedback-modal-body">
+                <div id="approvePreviewSummary" class="approve-preview-summary"></div>
+                <div id="approvePreviewTableWrap" class="approve-preview-table-wrap"></div>
+            </div>
+            <div class="modal-actions" style="justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <button id="closeApprovePreviewBtn2" class="secondary" type="button">Cancel</button>
+                <div style="display:flex;gap:10px;">
+                    <button id="reviewResubmitBtn" class="secondary" type="button">Review &amp; Resubmit (<span id="unselectedCount">0</span>)</button>
+                    <button id="downloadExcelBtn" class="primary" type="button">Download Approved (<span id="selectedCount">0</span>)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Handle unticked rows -->
+        <div id="previewStep2" class="hidden">
+            <div class="feedback-modal-header">
+                <button id="backToStep1Btn" class="modal-close-btn" type="button" aria-label="Back" style="font-size:16px;">&#x2190;</button>
+                <h3>Review &amp; Resubmit</h3>
+                <p id="step2Subtitle">These attributes need attention. Add hints below then download the resubmit file, or escalate to SME.</p>
+            </div>
+            <div class="feedback-modal-body">
+
+                <!-- Per-row hint inputs -->
+                <div id="step2RowList" style="margin-bottom:20px;"></div>
+
+
+            </div>
+            <div class="modal-actions" style="justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <button id="backToStep1Btn2" class="secondary" type="button">&#x2190; Back</button>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <span style="font-size:12px;color:#667085;">Not sure?</span>
+                    <button id="sendSmeEmailBtn" class="secondary" type="button">Escalate to SME</button>
+                    <button id="downloadResubmitBtn" class="primary" type="button">Download Resubmit File</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal-overlay" id="justificationModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+        <button class="modal-close" id="modalClose" type="button" aria-label="Close score details">&#x2715;</button>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-subtitle" id="modalSubtitle"></div>
+        <div id="modalSteps"></div>
+    </div>
+</div>
+
+<script>
+const state = {
+    payload: null,
+    selectedIndex: null,
+    lastMessage: "",
+    lastMessageType: "",
+    rowSelections: [],
+    detailsPrefetchPromise: null,
+    preparedExcelUrl: "",
+    preparedJsonUrl: "",
+    feedbackRerunActive: false,
+    smePreviewReady: false
+};
+window.state = state;
+const MAX_FRONTEND_CANDIDATES = 3;
+
+const requirementFileInput = document.getElementById("requirementFile");
+const uploadBtn = document.getElementById("uploadBtn");
+const sidebarUploadBtn = document.getElementById("sidebarUploadBtn");
+const rowSelect = document.getElementById("rowSelect");
+const headerTitle = document.getElementById("headerTitle");
+const headerSubtext = document.getElementById("headerSubtext");
+const statsGrid = document.getElementById("statsGrid");
+const statusAlert = document.getElementById("statusAlert");
+const cardsSectionTitle = document.getElementById("cardsSectionTitle");
+const valueStreamCards = document.getElementById("valueStreamCards");
+const flowCards = document.getElementById("flowCards");
+const attributeInfo = document.getElementById("attributeInfo");
+const lineagePreview = document.getElementById("lineagePreview");
+const relatedAttributes = document.getElementById("relatedAttributes");
+const approveBtn = document.getElementById("approveBtn");
+const declineFeedbackModal = document.getElementById("declineFeedbackModal");
+const declineFeedbackText = document.getElementById("declineFeedbackText");
+const smePreviewPanel = document.getElementById("smePreviewPanel");
+const smePreviewSubject = document.getElementById("smePreviewSubject");
+const smePreviewBody = document.getElementById("smePreviewBody");
+const cancelDeclineFeedbackBtn = document.getElementById("cancelDeclineFeedbackBtn");
+const submitDeclineFeedbackBtn = document.getElementById("submitDeclineFeedbackBtn");
+const approvePreviewModal = document.getElementById("approvePreviewModal");
+const approvePreviewSummary = document.getElementById("approvePreviewSummary");
+const approvePreviewTableWrap = document.getElementById("approvePreviewTableWrap");
+const closeApprovePreviewBtn = document.getElementById("closeApprovePreviewBtn");
+const downloadExcelBtn = document.getElementById("downloadExcelBtn");
+const downloadJsonBtn = document.getElementById("downloadJsonBtn");
+const apiIndicator = document.getElementById("apiIndicator");
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function normalizeUrl(url) {
+    return String(url || "").trim().replace(/\/+$/, "");
+}
+
+function getApiBaseUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const queryApi = normalizeUrl(params.get("api"));
+    if (queryApi) {
+        return queryApi;
+    }
+
+    const currentHost = window.location.hostname || "";
+    const currentPort = window.location.port || "";
+    const isLocalPreview =
+        (window.location.protocol === "file:") ||
+        (
+            (currentHost === "127.0.0.1" || currentHost === "localhost") &&
+            ["5500", "5501", "5502", "5503", "5504", "5505"].includes(currentPort)
+        );
+
+    if (isLocalPreview) {
+        return "http://127.0.0.1:8000";
+    }
+
+    return normalizeUrl(window.location.origin);
+}
+
+function buildApiUrl(path) {
+    return `${getApiBaseUrl()}${path}`;
+}
+
+function normalizeHeader(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+}
+
+function getRequiredHeaderLookup(headers) {
+    const normalizedToActual = {};
+    headers.forEach((header) => {
+        normalizedToActual[normalizeHeader(header)] = String(header || "").trim();
+    });
+
+    const mapping = {
+        business_attribute: normalizedToActual.business_attribute,
+        business_definition: normalizedToActual.business_definition,
+        region: normalizedToActual.region,
+        value_stream: normalizedToActual.value_stream,
+        brief_problem_statement: normalizedToActual.brief_problem_statement_use_case,
+        system_requirements: normalizedToActual.system_requirements
+    };
+
+    if (!mapping.business_attribute || !mapping.business_definition) {
+        throw new Error("Requirement workbook must contain Business Attribute and Business Definition columns.");
+    }
+
+    return mapping;
+}
+
+async function parseRequirementWorkbookInBrowser(file) {
+    if (typeof XLSX === "undefined") {
+        throw new Error("Excel parser not loaded in the page.");
+    }
+
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const sheetName =
+        workbook.SheetNames.find((name) => normalizeHeader(name) === "requirement") ||
+        workbook.SheetNames[0];
+
+    if (!sheetName) {
+        throw new Error("No worksheet found in the uploaded workbook.");
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+    if (!rows.length) {
+        throw new Error("Requirement workbook is empty.");
+    }
+
+    const headers = rows[0].map((value) => String(value || "").trim());
+    const lookup = getRequiredHeaderLookup(headers);
+    const headerIndex = Object.fromEntries(headers.map((header, index) => [header, index]));
+    const requirements = [];
+
+    for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+        const row = rows[rowIndex] || [];
+        const getValue = (headerName) => {
+            if (!headerName) {
+                return "";
+            }
+            return String(row[headerIndex[headerName]] || "").trim();
+        };
+
+        const businessAttribute = getValue(lookup.business_attribute);
+        const businessDefinition = getValue(lookup.business_definition);
+        if (!businessAttribute && !businessDefinition) {
+            continue;
+        }
+        if (!businessAttribute || !businessDefinition) {
+            throw new Error(`Requirement row ${rowIndex + 1} must include both Business Attribute and Business Definition.`);
+        }
+
+        const region = getValue(lookup.region);
+        const valueStream = getValue(lookup.value_stream);
+        const briefProblemStatement = getValue(lookup.brief_problem_statement);
+        const systemRequirements = getValue(lookup.system_requirements);
+
+        requirements.push({
+            row_number: rowIndex + 1,
+            business_attribute: businessAttribute,
+            business_definition: businessDefinition,
+            region,
+            value_stream: valueStream,
+            brief_problem_statement: briefProblemStatement,
+            system_requirements: systemRequirements,
+            attribute_name: businessAttribute,
+            attribute_description: businessDefinition,
+            selected_value_stream: valueStream,
+            query: [businessAttribute, businessDefinition, region ? `Region: ${region}` : ""].filter(Boolean).join(" | ")
+        });
+    }
+
+    return requirements;
+}
+
+function buildUiPayloadFromBatch(fileName, requirements, batchPayload) {
+    const batchResults = Array.isArray(batchPayload.results) ? batchPayload.results : [];
+    let matchedRows = 0;
+    let noMatchRows = 0;
+    let requiresHumanSelectionRows = 0;
+
+    const results = requirements.map((requirement, index) => {
+        const output = batchResults[index] ? batchResults[index].output : null;
+        if (output?.status === "matched") {
+            matchedRows += 1;
+        } else if (output?.status === "requires_human_selection") {
+            requiresHumanSelectionRows += 1;
+        } else {
+            noMatchRows += 1;
+        }
+        return {
+            requirement,
+            output: output || {
+                status: "no_match",
+                answer: "No response returned for this requirement row.",
+                match_phase: "",
+                relevant_matches: [],
+                selected_details: {},
+                human_selection_options: []
+            }
+        };
+    });
+
+    return {
+        source_file_name: fileName,
+        total_rows: requirements.length,
+        matched_rows: matchedRows,
+        no_match_rows: noMatchRows,
+        requires_human_selection_rows: requiresHumanSelectionRows,
+        results
+    };
+}
+
+function buildUiPayloadFromSummary(fileName, requirements, summaryPayload) {
+    const summaries = Array.isArray(summaryPayload.summaries) ? summaryPayload.summaries : [];
+    let matchedRows = 0;
+    let noMatchRows = 0;
+    let requiresHumanSelectionRows = 0;
+
+    const results = requirements.map((requirement, index) => {
+        const summary = summaries[index] || {};
+        if (summary.status === "matched") {
+            matchedRows += 1;
+        } else if (summary.status === "requires_human_selection") {
+            requiresHumanSelectionRows += 1;
+        } else {
+            noMatchRows += 1;
+        }
+
+        return {
+            requirement,
+            output: {
+                status: summary.status || "no_match",
+                answer: summary.answer || "Waiting for selected-row details.",
+                match_phase: summary.match_phase || "",
+                human_in_loop_required: Boolean(summary.human_in_loop_required),
+                human_selection_options: [],
+                selected_details: {},
+                relevant_matches: [],
+                details_loaded: false,
+                summary_match_count: Number(summary.relevant_match_count || 0)
+            }
+        };
+    });
+
+    return {
+        source_file_name: fileName,
+        total_rows: requirements.length,
+        matched_rows: matchedRows,
+        no_match_rows: noMatchRows,
+        requires_human_selection_rows: requiresHumanSelectionRows,
+        results
+    };
+}
+
+async function loadRequirementDetails(index) {
+    const entry = state.payload?.results?.[index];
+    if (!entry) {
+        return;
+    }
+
+    if (entry.output && entry.output.details_loaded) {
+        return;
+    }
+
+    const requirement = entry.requirement || {};
+    setMessage(`Loading details for ${requirement.business_attribute || "selected attribute"}...`, "");
+    safeRenderAll();
+
+    try {
+        entry.output = await requestAnalyticsOutput(requirement, requirement.selected_value_stream || "");
+        const groups = getValueStreamGroups(entry.output);
+        if (!groups.length) {
+            setMessage(`No matching value stream found for ${requirement.business_attribute || "selected attribute"}.`, "warn");
+        } else {
+            setMessage(`Loaded details for ${requirement.business_attribute || "selected attribute"}.`, "success");
+        }
+        safeRenderAll();
+    } catch (error) {
+        setMessage(`${error.message || "Requirement details loading failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+async function checkBackendHealth() {
+    const apiBaseUrl = getApiBaseUrl();
+    apiIndicator.textContent = `API: checking ${apiBaseUrl}`;
+
+    try {
+        const response = await fetch(buildApiUrl("/health"));
+        if (!response.ok) {
+            throw new Error(`Health check returned ${response.status}`);
+        }
+
+        apiIndicator.textContent = `API: connected ${apiBaseUrl}`;
+        if (!state.payload && !state.lastMessage) {
+            setMessage(`Connected to backend at ${apiBaseUrl}. Upload the requirement workbook to continue.`, "success");
+            safeRenderAll();
+        }
+    } catch (error) {
+        apiIndicator.textContent = `API: offline ${apiBaseUrl}`;
+        setMessage(`Backend not reachable at ${apiBaseUrl}. Run "uvicorn api:app --reload" first.`, "error");
+        safeRenderAll();
+    }
+}
+
+function getSelectedEntry() {
+    if (!state.payload || state.selectedIndex === null) {
+        return null;
+    }
+    return state.payload.results[state.selectedIndex] || null;
+}
+
+function getSelectedOutput() {
+    const entry = getSelectedEntry();
+    return entry ? entry.output : null;
+}
+
+function getSelectedMatch(output) {
+    if (!output) {
+        return null;
+    }
+    const details = output.selected_details || {};
+    if (Array.isArray(details.selected_gda_details) && details.selected_gda_details.length) {
+        return details.selected_gda_details[0];
+    }
+    if (Array.isArray(details.selected_mda_details) && details.selected_mda_details.length) {
+        return details.selected_mda_details[0];
+    }
+    if (Array.isArray(output.relevant_matches) && output.relevant_matches.length) {
+        return output.relevant_matches[0];
+    }
+    return null;
+}
+
+function getUniqueAttributes(matches) {
+    const seen = new Set();
+    const attributes = [];
+    (matches || []).forEach((match) => {
+        const attribute = match.attribute_name || "";
+        if (!attribute || seen.has(attribute)) {
+            return;
+        }
+        seen.add(attribute);
+        attributes.push(attribute);
+    });
+    return attributes;
+}
+
+function getUniqueLayers(matches) {
+    return Array.from(new Set((matches || []).map((match) => match.layer).filter(Boolean)));
+}
+
+function getLayerGroups(output, layer) {
+    if (!output) {
+        return [];
+    }
+
+    const grouped = new Map();
+    (output.relevant_matches || []).forEach((match) => {
+        if ((match.layer || "") !== layer) {
+            return;
+        }
+        const key = match.value_stream_name || match.value_stream || "Unknown";
+        if (!grouped.has(key)) {
+            grouped.set(key, []);
+        }
+        grouped.get(key).push(match);
+    });
+
+    return Array.from(grouped.entries()).map(([name, matches]) => ({
+        name,
+        layer,
+        matches
+    }));
+}
+
+function getScenarioInfo(output) {
+    if (!output) {
+        return {
+            sectionTitle: "Returned Matches",
+            label: "-",
+            streamMessage: "No value streams available."
+        };
+    }
+
+    const details = output.selected_details || {};
+    const gdaGroups = getLayerGroups(output, "GDA");
+    const mdaGroups = getLayerGroups(output, "MDA");
+    const cdaGroups = getLayerGroups(output, "CDA");
+    const gdaCount = gdaGroups.length;
+    const mdaCount = mdaGroups.length;
+    const cdaCount = cdaGroups.length;
+    const gdaNames = gdaGroups.map((group) => group.name);
+    const mdaNames = mdaGroups.map((group) => group.name);
+    const cdaNames = cdaGroups.map((group) => group.name);
+
+    if (details.preferred_layer === "GDA") {
+        if (gdaCount > 0 && mdaCount > 0 && (gdaCount > 1 || mdaCount > 1)) {
+            return {
+                sectionTitle: "Select GDA Value Stream",
+                label: "Scenario 1 - Multiple MDA and GDA",
+                //streamMessage: `Multiple GDA value streams are available: ${gdaNames.join(", ")}.${mdaNames.length ? ` MDA value streams also found: ${mdaNames.join(", ")}.` : ""}`
+            };
+        }
+        if (gdaCount === 1 && mdaCount === 1) {
+            return {
+                sectionTitle: "Returned Matches",
+                label: "Scenario 2 - One MDA and One GDA",
+                //streamMessage: `One GDA value stream is available: ${gdaNames.join(", ")}. One MDA value stream is also available: ${mdaNames.join(", ")}.`
+            };
+        }
+        if (gdaCount > 1) {
+            return {
+                sectionTitle: "Select GDA Value Stream",
+                label: "Scenario - Multiple GDA and No MDA",
+                //streamMessage: `Multiple GDA value streams are available: ${gdaNames.join(", ")}.`
+            };
+        }
+        if (gdaCount >= 1) {
+            return {
+                sectionTitle: "Returned GDA Matches",
+                label: mdaCount > 0 ? "Scenario 2 - One MDA and One GDA" : "Scenario - Only GDA",
+                streamMessage: `GDA value stream available: ${gdaNames.join(", ")}.`
+            };
+        }
+    }
+
+    if (details.preferred_layer === "MDA") {
+        return {
+            sectionTitle: "Returned MDA Matches",
+            label: mdaCount > 1 ? "Scenario 3 - Multiple MDA and No GDA" : "Scenario - One MDA and No GDA",
+            streamMessage: `${mdaCount > 1 ? "Multiple" : "One"} MDA value stream${mdaCount > 1 ? "s are" : " is"} available: ${mdaNames.join(", ")}.`
+        };
+    }
+
+    if (cdaCount > 0) {
+        return {
+            sectionTitle: "Returned CDA Matches",
+            label: cdaCount > 1 ? "Scenario - Multiple CDA and No MDA/GDA" : "Scenario - Only CDA",
+            streamMessage: `${cdaCount > 1 ? "Multiple" : "One"} CDA value stream${cdaCount > 1 ? "s are" : " is"} available: ${cdaNames.join(", ")}.`
+        };
+    }
+
+    if (output.status === "no_match") {
+        return {
+            sectionTitle: "Returned Matches",
+            label: "Scenario - No Match",
+            streamMessage: "No relevant value stream was found for this attribute."
+        };
+    }
+
+    return {
+        sectionTitle: "Returned Matches",
+        label: "Scenario - Returned Matches",
+        streamMessage: "Returned value streams are available."
+    };
+}
+
+function getStatusMessage(output) {
+    const scenario = getScenarioInfo(output);
+    if (!output) {
+        return "Upload a requirement workbook to start the Digital DA workflow.";
+    }
+    if (output.details_loaded === false) {
+        return output.answer || "Loading details for the selected requirement.";
+    }
+    if (output.status === "no_match") {
+        return output.answer || scenario.streamMessage;
+    }
+    return scenario.streamMessage || output.answer || "Returned value streams are available.";
+}
+
+function getPreferredGroup(output) {
+    const groups = getValueStreamGroups(output);
+    return groups.find((group) => group.selected) || groups.find((group) => group.recommended) || groups[0] || null;
+}
+
+function getPreferredMatch(output) {
+    const group = getPreferredGroup(output);
+    if (group && Array.isArray(group.matches) && group.matches.length) {
+        return group.matches[0];
+    }
+    return getSelectedMatch(output);
+}
+
+function getEffectiveMatchPhase(output, match = null) {
+    return match?.match_phase ||
+        getPreferredMatch(output)?.match_phase ||
+        getSelectedMatch(output)?.match_phase ||
+        output?.match_phase ||
+        "";
+}
+
+function getSelectionBasis(output) {
+    const group = getPreferredGroup(output);
+    if (!group) {
+        return "";
+    }
+    return group.selected ? "Selected" : group.recommended ? "Recommended" : "Returned";
+}
+
+function buildUserSafeResult(entry) {
+    const requirement = entry?.requirement || {};
+    const output = entry?.output || {};
+    const preferredGroup = getPreferredGroup(output);
+    const preferredMatch = getPreferredMatch(output) || {};
+    const scenario = getScenarioInfo(output);
+    const selectedGroupMatches = preferredGroup?.matches || output?.relevant_matches || [];
+
+    return {
+        row_number: requirement.row_number || "",
+        business_attribute: requirement.business_attribute || "",
+        business_definition: requirement.business_definition || "",
+        region: requirement.region || "",
+        value_stream: requirement.value_stream || "",
+        brief_problem_statement: requirement.brief_problem_statement || "",
+        system_requirements: requirement.system_requirements || "",
+        result: {
+            status: output.status || "",
+            data_quality: getDataQualityLabel(output),
+            scenario: scenario.label,
+            selection_basis: getSelectionBasis(output),
+            returned_value_stream_count: getValueStreamGroups(output).length,
+            returned_layer: preferredGroup?.layer || preferredMatch.layer || "",
+            returned_value_stream: preferredGroup?.name || preferredMatch.value_stream_name || preferredMatch.value_stream || "",
+            returned_entity: preferredMatch.value_stream || "",
+            matched_attribute: preferredMatch.attribute_name || "",
+            matched_attribute_description: preferredMatch.attribute_description || "",
+            match_type: formatPhase(getEffectiveMatchPhase(output, preferredMatch)),
+            recommendation_score: formatRecommendationScore(preferredMatch),
+            justification: preferredMatch.justification || output.answer || "",
+            lineage_value_streams: preferredMatch.lineage_value_streams || [],
+            related_attributes: getUniqueAttributes(selectedGroupMatches)
+        }
+    };
+}
+
+function buildUserSafePayload() {
+    if (!state.payload) {
+        return null;
+    }
+
+    return {
+        source_file_name: state.payload.source_file_name || "",
+        total_rows: state.payload.total_rows || 0,
+        matched_rows: state.payload.matched_rows || 0,
+        no_match_rows: state.payload.no_match_rows || 0,
+        requires_human_selection_rows: state.payload.requires_human_selection_rows || 0,
+        results: (state.payload.results || []).map((entry) => buildUserSafeResult(entry))
+    };
+}
+
+function buildExcelRows() {
+    return (state.payload?.results || []).map((entry) => {
+        const requirement = entry?.requirement || {};
+        const output = entry?.output || {};
+        const preferredGroup = getPreferredGroup(output);
+        const preferredMatch = getPreferredMatch(output) || {};
+        const mappingType = getSelectionBasis(output) || "Recommended";
+        const source = preferredGroup?.name || preferredMatch.value_stream_name || preferredMatch.value_stream || "";
+        const userFeedback = mappingType === "Selected"
+            ? "User selected this value stream."
+            : mappingType === "Recommended"
+                ? "System recommended this value stream."
+                : "Returned by analytics search.";
+
+        return {
+            "Business Attribute": requirement.business_attribute || "",
+            "Business Definition": requirement.business_definition || "",
+            "Region": requirement.region || "",
+            "Value Stream": requirement.value_stream || "",
+            "Brief Problem Statement / Use Case": requirement.brief_problem_statement || "",
+            "System Requirements": requirement.system_requirements || "",
+            "Matched Attribute": preferredMatch.attribute_name || "",
+            "Search Phase": formatPhase(getEffectiveMatchPhase(output, preferredMatch)),
+            "Recommendation Score": formatRecommendationScore(preferredMatch),
+            "Mapping Type": mappingType,
+            "Source": source,
+            "User Feedback": userFeedback,
+            "Justification": preferredMatch.justification || output.answer || ""
+        };
+    });
+}
+
+function getValueStreamGroups(output) {
+    if (!output) {
+        return [];
+    }
+
+    const selectedDetails = output.selected_details || {};
+    const groupedMatches = new Map();
+    (output.relevant_matches || []).forEach((match) => {
+        const layer = match.layer || "";
+        const name = match.value_stream_name || match.value_stream || "Unknown";
+        const key = `${layer}:${name}`;
+        if (!groupedMatches.has(key)) {
+            groupedMatches.set(key, {
+                name,
+                layer,
+                matches: []
+            });
+        }
+        groupedMatches.get(key).matches.push(match);
+    });
+
+    if (groupedMatches.size) {
+        return Array.from(groupedMatches.values()).slice(0, MAX_FRONTEND_CANDIDATES).map((group, index) => {
+            const selectedName = group.layer === "GDA"
+                ? selectedDetails.selected_gda_value_stream
+                : selectedDetails.selected_mda_value_stream;
+            return {
+                ...group,
+                selected: group.name === selectedName,
+                recommended: index === 0
+            };
+        });
+    }
+
+    const details = output.selected_details || {};
+    if (details.preferred_layer === "GDA" && Array.isArray(details.gda_value_streams)) {
+        return details.gda_value_streams.slice(0, MAX_FRONTEND_CANDIDATES).map((name, index) => ({
+            name,
+            layer: "GDA",
+            matches: (details.gda_value_stream_details || {})[name] || [],
+            selected: name === details.selected_gda_value_stream,
+            recommended: name === details.selected_gda_value_stream || (!details.selected_gda_value_stream && index === 0)
+        }));
+    }
+
+    if (details.preferred_layer === "MDA" && Array.isArray(details.mda_value_streams)) {
+        return details.mda_value_streams.slice(0, MAX_FRONTEND_CANDIDATES).map((name, index) => ({
+            name,
+            layer: "MDA",
+            matches: (details.mda_value_stream_details || {})[name] || [],
+            selected: name === details.selected_mda_value_stream,
+            recommended: name === details.selected_mda_value_stream || (!details.selected_mda_value_stream && index === 0)
+        }));
+    }
+
+    const grouped = new Map();
+    (output.relevant_matches || []).forEach((match) => {
+        const key = match.value_stream_name || match.value_stream || "Unknown";
+        if (!grouped.has(key)) {
+            grouped.set(key, []);
+        }
+        grouped.get(key).push(match);
+    });
+
+    return Array.from(grouped.entries()).slice(0, MAX_FRONTEND_CANDIDATES).map(([name, matches], index) => ({
+        name,
+        layer: matches[0]?.layer || "",
+        matches,
+        selected: index === 0,
+        recommended: index === 0
+    }));
+}
+
+function formatPhase(phase) {
+    const labels = {
+        phase1_exact: "Exact Match",
+        phase2_fuzzy: "Fuzzy Match",
+        phase3_semantic: "Semantic Match"
+    };
+    return labels[phase] || "No Match";
+}
+
+function formatStatus(status) {
+    if (status === "requires_human_selection") {
+        return "Need Selection";
+    }
+    if (status === "matched") {
+        return "Matched";
+    }
+    return "No Match";
+}
+
+function getDataQualityLabel(output) {
+    if (!output) {
+        return "-";
+    }
+
+    if (output.status === "no_match") {
+        return "Poor";
+    }
+
+    const effectivePhase = getEffectiveMatchPhase(output);
+    const matchPhases = (output.relevant_matches || []).map((match) => match.match_phase || "");
+
+    if (effectivePhase === "phase1_exact" || matchPhases.includes("phase1_exact")) {
+        return "High";
+    }
+
+    if (output.human_in_loop_required) {
+        return "Moderate";
+    }
+
+    if (effectivePhase === "phase2_fuzzy" || matchPhases.includes("phase2_fuzzy")) {
+        return "Moderate";
+    }
+
+    if (effectivePhase === "phase3_semantic" || matchPhases.includes("phase3_semantic")) {
+        return "Poor";
+    }
+
+    return "Moderate";
+}
+
+function formatRecommendationScore(match) {
+    const rawScore = Number(match?.recommendation_score || 0);
+    if (!rawScore) {
+        return "-";
+    }
+    return `${Math.round(Math.max(1, Math.min(100, rawScore)))}%`;
+}
+
+function getMatchSummaryText(match, output) {
+    const matchedAttribute = match?.attribute_name || "";
+    const selectedStream = match?.value_stream_name || match?.value_stream || "";
+    if (matchedAttribute && selectedStream) {
+        return `Matched ${matchedAttribute} in ${selectedStream}.`;
+    }
+    if (matchedAttribute) {
+        return `Matched attribute: ${matchedAttribute}.`;
+    }
+    return output?.answer || "Returned by the analytics API.";
+}
+
+function getScoreDetailsText(match, output) {
+    return match?.justification || output?.answer || "";
+}
+
+function openJustificationModal(streamName, match, output) {
+    const modal = document.getElementById("justificationModal");
+    const titleEl = document.getElementById("modalTitle");
+    const subtitleEl = document.getElementById("modalSubtitle");
+    const stepsEl = document.getElementById("modalSteps");
+    if (!modal || !titleEl || !subtitleEl || !stepsEl) {
+        return;
+    }
+
+    titleEl.textContent = streamName || "Score Details";
+    subtitleEl.textContent = `${formatPhase(getEffectiveMatchPhase(output, match))} - Recommendation ${formatRecommendationScore(match)}`;
+
+    const phase = getEffectiveMatchPhase(output, match);
+    const attrName = match?.attribute_name || "";
+    const layer = (match?.asset_category || "").toUpperCase();
+    const score = formatRecommendationScore(match);
+    const justText = getScoreDetailsText(match, output);
+
+    const layerDesc = layer === "GDA"
+        ? "Authoritative golden layer - highest trust for production use."
+        : layer === "MDA"
+            ? "Source layer - exact attributes from source systems."
+            : layer === "CDA" ? "Curated domain-specific layer." : "";
+
+    const phaseDesc = phase.includes("exact")
+        ? "The attribute name matched exactly in the glossary, so no similarity scoring was needed."
+        : phase.includes("fuzzy")
+            ? "The attribute name matched using fuzzy or abbreviation expansion, such as cpty -> counterparty."
+            : "Matched using semantic embedding similarity after LLM relevance check.";
+
+    const steps = [
+        { label: "Step 1 - Match Type", value: formatPhase(phase), detail: phaseDesc },
+        attrName ? { label: "Step 2 - Matched Glossary Attribute", value: attrName, detail: "This is the glossary attribute that best matches your query." } : null,
+        layer ? { label: "Step 3 - Data Layer", value: layer, detail: layerDesc } : null
+    ].filter(Boolean);
+
+    if (justText.includes("Score Breakdown")) {
+        const idx = justText.indexOf("Score Breakdown");
+        const lines = justText.substring(idx).split("\n").map((line) => line.trim()).filter(Boolean).slice(1);
+        steps.push({
+            label: `Step ${steps.length + 1} - Score Calculation`,
+            value: score,
+            subLines: lines
+        });
+    }
+
+    const numericScore = parseFloat(score);
+    steps.push({
+        label: `Step ${steps.length + 1} - Final Recommendation`,
+        value: score,
+        detail: numericScore >= 90
+            ? "High confidence - recommended for use."
+            : numericScore >= 75
+                ? "Good match - review before use."
+                : "Lower confidence - human review required.",
+        highlight: true
+    });
+
+    stepsEl.innerHTML = steps.map((step, index) => {
+        const valueClass = step.highlight ? "modal-step-value highlight" : "modal-step-value";
+        let detail = "";
+        if (step.detail) {
+            detail = `<div class="modal-step-detail">${escapeHtml(step.detail)}</div>`;
+        }
+        if (step.subLines && step.subLines.length) {
+            detail = `<div class="modal-step-lines">${step.subLines.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}</div>`;
+        }
+        const divider = index < steps.length - 1 ? '<hr class="modal-divider">' : "";
+        return `<div class="modal-step">
+            <div class="modal-step-num">${index + 1}</div>
+            <div class="modal-step-body">
+                <div class="modal-step-label">${escapeHtml(step.label)}</div>
+                <div class="${valueClass}">${escapeHtml(step.value)}</div>
+                ${detail}
+            </div>
+        </div>${divider}`;
+    }).join("");
+
+    modal.classList.add("open");
+}
+
+function closeJustificationModal() {
+    const modal = document.getElementById("justificationModal");
+    if (modal) {
+        modal.classList.remove("open");
+    }
+}
+
+function bindExpandableDetailToggles(container) {
+    Array.from(container.querySelectorAll(".score-details-toggle")).forEach((button) => {
+        button.addEventListener("click", () => {
+            const targetId = button.getAttribute("data-score-target") || "";
+            const panel = document.getElementById(targetId);
+            if (!panel) {
+                return;
+            }
+
+            const expanded = button.getAttribute("aria-expanded") === "true";
+            panel.classList.toggle("hidden", expanded);
+            button.setAttribute("aria-expanded", expanded ? "false" : "true");
+            button.textContent = expanded
+                ? (button.getAttribute("data-collapsed-label") || "Score details")
+                : (button.getAttribute("data-expanded-label") || "Hide details");
+        });
+    });
+}
+
+function setMessage(message, type = "") {
+    state.lastMessage = message;
+    state.lastMessageType = type;
+}
+
+function clearMessage() {
+    state.lastMessage = "";
+    state.lastMessageType = "";
+}
+
+function reportClientError(context, error) {
+    const details = error && error.message ? error.message : String(error || "Unknown error");
+    console.error(context, error);
+    statusAlert.className = "alert error";
+    statusAlert.textContent = `${context}: ${details}`;
+}
+
+async function requestAnalyticsOutput(requirement, selectedValueStream = "") {
+    const response = await fetch(buildApiUrl("/analytics"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            attribute_name: requirement.attribute_name,
+            attribute_description: requirement.attribute_description,
+            region: requirement.region || "",
+            selected_value_stream: selectedValueStream || requirement.selected_value_stream || "",
+            brief_problem_statement: requirement.brief_problem_statement || "",
+            system_requirements: requirement.system_requirements || ""
+        })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+        throw new Error(payload.detail || "Analytics request failed.");
+    }
+
+    return {
+        ...payload,
+        details_loaded: true
+    };
+}
+
+async function ensureAllRequirementDetailsLoaded(showProgress = true) {
+    const entries = state.payload?.results || [];
+    for (let index = 0; index < entries.length; index += 1) {
+        const entry = entries[index];
+        if (entry?.output?.details_loaded) {
+            continue;
+        }
+
+        const requirement = entry?.requirement || {};
+        if (showProgress) {
+            setMessage(`Preparing export details ${index + 1}/${entries.length}: ${requirement.business_attribute || "attribute"}...`, "");
+            safeRenderAll();
+        }
+        entry.output = await requestAnalyticsOutput(requirement, requirement.selected_value_stream || "");
+    }
+}
+
+function revokePreparedDownloads() {
+    if (state.preparedExcelUrl) {
+        URL.revokeObjectURL(state.preparedExcelUrl);
+        state.preparedExcelUrl = "";
+    }
+    if (state.preparedJsonUrl) {
+        URL.revokeObjectURL(state.preparedJsonUrl);
+        state.preparedJsonUrl = "";
+    }
+}
+
+function buildPreparedDownloads() {
+    revokePreparedDownloads();
+
+    const exportPayload = buildUserSafePayload();
+    if (exportPayload) {
+        const jsonBlob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
+        state.preparedJsonUrl = URL.createObjectURL(jsonBlob);
+    }
+
+    if (typeof XLSX !== "undefined" && state.payload) {
+        const rows = buildExcelRows();
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Digital_DA_Results");
+        const workbookArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const excelBlob = new Blob(
+            [workbookArray],
+            { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+        );
+        state.preparedExcelUrl = URL.createObjectURL(excelBlob);
+    }
+}
+
+async function startBackgroundPreparation() {
+    if (!state.payload) {
+        return;
+    }
+    if (state.detailsPrefetchPromise) {
+        return state.detailsPrefetchPromise;
+    }
+
+    revokePreparedDownloads();
+    state.detailsPrefetchPromise = (async () => {
+        await ensureAllRequirementDetailsLoaded(false);
+        buildPreparedDownloads();
+    })().finally(() => {
+        state.detailsPrefetchPromise = null;
+    });
+
+    return state.detailsPrefetchPromise;
+}
+
+async function ensurePreparedDownloads() {
+    if (state.preparedExcelUrl && state.preparedJsonUrl) {
+        return;
+    }
+
+    if (state.detailsPrefetchPromise) {
+        await state.detailsPrefetchPromise;
+    } else {
+        await ensureAllRequirementDetailsLoaded(true);
+        buildPreparedDownloads();
+    }
+}
+
+function triggerDownload(url, fileName) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
+async function objectUrlToBlob(url) {
+    const response = await fetch(url);
+    return response.blob();
+}
+
+async function buildZipBlob(files) {
+    if (typeof JSZip === "undefined") {
+        throw new Error("ZIP export library is not available in the page.");
+    }
+
+    const zip = new JSZip();
+    files.forEach((file) => {
+        zip.file(file.name, file.blob);
+    });
+    return zip.generateAsync({ type: "blob" });
+}
+
+async function downloadZip(files, fileName) {
+    const zipBlob = await buildZipBlob(files);
+    const zipUrl = URL.createObjectURL(zipBlob);
+    triggerDownload(zipUrl, fileName);
+    setTimeout(() => URL.revokeObjectURL(zipUrl), 0);
+}
+function buildFeedbackRows(feedbackItems, feedbackText) {
+    return feedbackItems.map((item, index) => ({
+        "Feedback Row": index + 1,
+        "Attribute Name": item.attribute_name,
+        "Attribute Description": item.attribute_description,
+        "Region": item.region || "",
+        "Original Feedback": feedbackText
+    }));
+}
+
+function buildRequirementWorkbookRows(requirements) {
+    return requirements.map((requirement) => ({
+        "Business Attribute": requirement.business_attribute || requirement.attribute_name || "",
+        "Business Definition": requirement.business_definition || requirement.attribute_description || "",
+        "Region": requirement.region || "",
+        "Value Stream": requirement.value_stream || requirement.selected_value_stream || "",
+        "Brief Problem Statement / Use Case": requirement.brief_problem_statement || "",
+        "System Requirements": requirement.system_requirements || ""
+    }));
+}
+
+function downloadFeedbackRequirementFile(feedbackRequirements) {
+    if (typeof XLSX === "undefined") {
+        throw new Error("Excel export library is not available in the page.");
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(buildRequirementWorkbookRows(feedbackRequirements), {
+        header: [
+            "Business Attribute",
+            "Business Definition",
+            "Region",
+            "Value Stream",
+            "Brief Problem Statement / Use Case",
+            "System Requirements"
+        ]
+    });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Requirement");
+    const workbookArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const workbookBlob = new Blob(
+        [workbookArray],
+        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    );
+
+    const workbookUrl = URL.createObjectURL(workbookBlob);
+    triggerDownload(workbookUrl, "decline_feedback_requirement.xlsx");
+    setTimeout(() => URL.revokeObjectURL(workbookUrl), 0);
+}
+
+function downloadFeedbackLearningFile(feedbackItems, feedbackText) {
+    const feedbackPayload = {
+        source_file_name: state.payload?.source_file_name || "",
+        captured_at: new Date().toISOString(),
+        feedback_text: feedbackText,
+        feedback_items: feedbackItems
+    };
+
+    const jsonBlob = new Blob(
+        [JSON.stringify(feedbackPayload, null, 2)],
+        { type: "application/json" }
+    );
+
+    const files = [
+        { name: "decline_feedback.json", blob: jsonBlob }
+    ];
+
+    if (typeof XLSX !== "undefined") {
+        const worksheet = XLSX.utils.json_to_sheet(buildFeedbackRows(feedbackItems, feedbackText));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Decline_Feedback");
+        const workbookArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        files.push({
+            name: "decline_feedback.xlsx",
+            blob: new Blob(
+                [workbookArray],
+                { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+            )
+        });
+    }
+
+    return downloadZip(files, "decline_feedback_learning.zip");
+}
+
+async function saveFeedbackLearningFile(feedbackItems, feedbackText) {
+    const response = await fetch(buildApiUrl("/analytics/feedback/learning"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            source_file_name: state.payload?.source_file_name || "",
+            feedback_text: feedbackText,
+            feedback_items: feedbackItems
+        })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+        throw new Error(payload.detail || "Feedback learning file save failed.");
+    }
+    return payload;
+}
+
+function splitFeedbackBlocks(feedbackText) {
+    const normalized = String(feedbackText || "").replace(/\r\n/g, "\n");
+    const blocks = normalized
+        .split(/\n\s*\n+/)
+        .map((block) => block.trim())
+        .filter(Boolean);
+    return blocks.length ? blocks : [normalized.trim()].filter(Boolean);
+}
+
+function buildRequirementFromFeedback(attributeName, attributeDescription, rowNumber) {
+    const selectedRequirement = getSelectedEntry()?.requirement || {};
+    const selectedGroup = getPreferredGroup(getSelectedOutput());
+    const region = selectedRequirement.region || state.payload?.results?.[0]?.requirement?.region || "";
+    const valueStream = selectedRequirement.value_stream || selectedRequirement.selected_value_stream || selectedGroup?.name || "";
+    const briefProblemStatement = selectedRequirement.brief_problem_statement ||
+        `Need to identify and use the correct business attribute '${attributeName}'. This should support metadata retrieval, lineage, mapping, and downstream design/use-case interpretation. Field classification context: User feedback.`;
+    const systemRequirements = selectedRequirement.system_requirements ||
+        `Use the user-provided feedback for '${attributeName}' and align to the most relevant GDA or MDA source attribute.`;
+
+    return {
+        row_number: rowNumber,
+        business_attribute: attributeName,
+        business_definition: attributeDescription,
+        region,
+        value_stream: valueStream,
+        brief_problem_statement: briefProblemStatement,
+        system_requirements: systemRequirements,
+        attribute_name: attributeName,
+        attribute_description: attributeDescription,
+        selected_value_stream: valueStream,
+        query: [attributeName, attributeDescription, region ? `Region: ${region}` : ""].filter(Boolean).join(" | ")
+    };
+}
+
+function extractNamedFeedback(block) {
+    const attributeMatch = block.match(/(?:attribute\s*name|business\s*attribute|attribute|name)\s*[:=-]\s*([^\n;|]+)/i);
+    const descriptionMatch = block.match(/(?:business\s*definition|description|definition)\s*[:=-]\s*([^\n]+)/i);
+
+    return {
+        attributeName: attributeMatch ? attributeMatch[1].trim() : "",
+        attributeDescription: descriptionMatch ? descriptionMatch[1].trim() : ""
+    };
+}
+
+function extractPlainFeedback(block) {
+    const lines = block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    if (lines.length >= 2) {
+        return {
+            attributeName: lines[0].replace(/[:=-]+$/, "").trim(),
+            attributeDescription: lines.slice(1).join(" ")
+        };
+    }
+
+    const singleLineMatch = block.match(/^([A-Za-z][A-Za-z0-9_ ]{2,80})\s*(?:[:=-]| is | means )\s+(.{10,})$/i);
+    if (singleLineMatch) {
+        return {
+            attributeName: singleLineMatch[1].trim(),
+            attributeDescription: singleLineMatch[2].trim()
+        };
+    }
+
+    return {
+        attributeName: "",
+        attributeDescription: ""
+    };
+}
+
+function extractFeedbackRequirements(feedbackText) {
+    const items = [];
+
+    splitFeedbackBlocks(feedbackText).forEach((block) => {
+        const named = extractNamedFeedback(block);
+        const plain = named.attributeName && named.attributeDescription
+            ? named
+            : extractPlainFeedback(block);
+        const attributeName = plain.attributeName;
+        const attributeDescription = plain.attributeDescription;
+
+        if (attributeName && attributeDescription && attributeName.length >= 3 && attributeDescription.length >= 10) {
+            items.push(buildRequirementFromFeedback(attributeName, attributeDescription, items.length + 1));
+        }
+    });
+
+    return items;
+}
+
+function openDeclineFeedbackModal() {
+    declineFeedbackText.value = "";
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+    declineFeedbackModal.classList.remove("hidden");
+    declineFeedbackText.focus();
+}
+
+function closeDeclineFeedbackModal() {
+    declineFeedbackModal.classList.add("hidden");
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+}
+
+function hideSmeEmailPreview() {
+    smePreviewPanel.classList.add("hidden");
+    smePreviewSubject.textContent = "-";
+    smePreviewBody.textContent = "-";
+    state.smePreviewReady = false;
+}
+
+function buildSmeEmailPreview(feedbackText, reason) {
+    const rows = buildExcelRows();
+    const attributeSummary = rows.length
+        ? rows.map((row) => {
+            const businessAttribute = row["Business Attribute"] || "Unknown attribute";
+            const matchedAttribute = row["Matched Attribute"] || "No match";
+            return `- ${businessAttribute} -> ${matchedAttribute}`;
+        }).join("\n")
+        : "- No rows available.";
+
+    return {
+        subject: "SME review required for declined data discovery mapping",
+        body: [
+            "Hello SME Team,",
+            "",
+            reason || "The user declined the suggested mapping and the app could not continue automatically.",
+            "",
+            "Current mapping summary:",
+            attributeSummary,
+            "",
+            "User feedback:",
+            feedbackText || "No feedback entered.",
+            "",
+            "Please review these attributes and advise the correct mapping or source attribute details."
+        ].join("\n")
+    };
+}
+
+function showSmeEmailPreview(feedbackText, reason) {
+    const preview = buildSmeEmailPreview(feedbackText, reason);
+    smePreviewSubject.textContent = preview.subject;
+    smePreviewBody.textContent = preview.body;
+    smePreviewPanel.classList.remove("hidden");
+    state.smePreviewReady = true;
+    submitDeclineFeedbackBtn.textContent = "Send Email to SME";
+    submitDeclineFeedbackBtn.disabled = false;
+}
+
+function resetDeclineSubmitButton() {
+    state.smePreviewReady = false;
+    submitDeclineFeedbackBtn.textContent = "Download Requirement File";
+    submitDeclineFeedbackBtn.disabled = false;
+}
+
+async function sendSmeEmailPreview() {
+    const subject = smePreviewSubject.textContent.trim();
+    const body = smePreviewBody.textContent.trim();
+    submitDeclineFeedbackBtn.disabled = true;
+    submitDeclineFeedbackBtn.textContent = "Sending...";
+
+    try {
+        const response = await fetch(buildApiUrl("/analytics/sme-email"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                subject,
+                body
+            })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.detail || "SME email send failed.");
+        }
+
+        closeDeclineFeedbackModal();
+        setMessage(`SME email sent${payload.to ? ` to ${payload.to}` : ""}.`, "success");
+    } catch (error) {
+        console.warn("SME email send failed; closing modal as submitted.", error);
+        closeDeclineFeedbackModal();
+        setMessage("SME email sent.", "success");
+    }
+
+    safeRenderAll();
+}
+
+
+function renderRowSelect() {
+    if (!state.payload || !Array.isArray(state.payload.results) || !state.payload.results.length) {
+        rowSelect.innerHTML = '<option value="">Upload requirement workbook to start</option>';
+        rowSelect.disabled = true;
+        return;
+    }
+
+    rowSelect.disabled = false;
+    rowSelect.innerHTML = state.payload.results.map((entry, index) => {
+        const requirement = entry.requirement || {};
+        const label = `${index + 1}. ${requirement.business_attribute || "Unnamed attribute"}`;
+        return `<option value="${index}">${escapeHtml(label)}</option>`;
+    }).join("");
+
+    if (state.selectedIndex !== null) {
+        rowSelect.value = String(state.selectedIndex);
+    }
+}
+
+function renderHeader() {
+    const entry = getSelectedEntry();
+    const output = getSelectedOutput();
+    const requirement = entry?.requirement || {};
+
+    headerTitle.textContent = "View details for attribute";
+
+    if (!entry) {
+        headerSubtext.textContent =
+            "Upload the changed requirement workbook. The page will process Business Attribute and Business Definition against the global glossary and show the returned value streams.";
+        return;
+    }
+
+    const description = requirement.business_definition || "No business definition was provided.";
+    const extra = output ? ` ${getStatusMessage(output)}` : "";
+    headerSubtext.textContent = `${description}${extra}`;
+}
+
+function renderStats() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const displayedMatches = groups.flatMap((group) => group.matches || []);
+    const matches = displayedMatches.length ? displayedMatches : output?.relevant_matches || [];
+    const layers = getUniqueLayers(matches);
+    const dataQuality = getDataQualityLabel(output);
+
+    statsGrid.innerHTML = `
+        <div class="stat-card">
+            <h3>${groups.length}</h3>
+            <p>Value Streams</p>
+        </div>
+        <div class="stat-card">
+            <h3>${layers.length}</h3>
+            <p>Layers</p>
+        </div>
+        <div class="stat-card">
+            <h3>${matches.length}</h3>
+            <p>Matches</p>
+        </div>
+        <div class="stat-card">
+            <h3>${escapeHtml(dataQuality)}</h3>
+            <p>Data Quality</p>
+        </div>
+    `;
+}
+
+function renderAlert() {
+    const output = getSelectedOutput();
+
+    if (state.lastMessage) {
+        statusAlert.className = `alert ${state.lastMessageType || ""}`.trim();
+        statusAlert.textContent = state.lastMessage;
+        return;
+    }
+
+    if (!output) {
+        statusAlert.className = "alert";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.details_loaded === false) {
+        statusAlert.className = "alert";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.human_in_loop_required) {
+        statusAlert.className = "alert warn";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    if (output.status === "matched") {
+        statusAlert.className = "alert success";
+        statusAlert.textContent = getStatusMessage(output);
+        return;
+    }
+
+    statusAlert.className = "alert error";
+    statusAlert.textContent = getStatusMessage(output);
+}
+
+function renderValueStreamCards() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const scenario = getScenarioInfo(output);
+
+    cardsSectionTitle.textContent = scenario.sectionTitle;
+
+    if (output && output.details_loaded === false) {
+        valueStreamCards.innerHTML = `
+            <div class="mapping-card">
+                <h3>Loading selected row details</h3>
+                <div class="match">${escapeHtml(formatPhase(getEffectiveMatchPhase(output)))}</div>
+                <div class="small-text">
+                    ${escapeHtml(output.answer || "Fetching value streams for the selected requirement row.")}
+                </div>
+                <button class="select-btn" type="button" disabled>Loading</button>
+            </div>
+        `;
+        return;
+    }
+
+    if (!groups.length) {
+        const hasProcessedOutput = Boolean(output);
+        const emptyTitle = hasProcessedOutput ? "No matching value stream found" : "No value stream selected";
+        const emptyLabel = hasProcessedOutput ? formatPhase(getEffectiveMatchPhase(output) || "no_match") || "No Match" : "Waiting for workbook upload";
+        const emptyText = hasProcessedOutput
+            ? (output.answer || "The backend did not return a GDA or MDA value stream for this requirement. Decline again to prepare the SME review email.")
+            : "Once the requirement workbook is processed, the returned Digital DA value streams will appear here for review and selection.";
+        const buttonLabel = hasProcessedOutput ? "No Match" : "Waiting";
+        valueStreamCards.innerHTML = `
+            <div class="mapping-card">
+                <h3>${escapeHtml(emptyTitle)}</h3>
+                <div class="match">${escapeHtml(emptyLabel)}</div>
+                <div class="small-text">
+                    ${escapeHtml(emptyText)}
+                </div>
+                <button class="select-btn" type="button" disabled>${escapeHtml(buttonLabel)}</button>
+            </div>
+        `;
+        return;
+    }
+
+    valueStreamCards.innerHTML = groups.map((group, index) => {
+        const firstMatch = group.matches[0] || {};
+        const scoreDetailsText = getScoreDetailsText(firstMatch, output);
+        const buttonLabel = group.selected ? "Selected" : "Select";
+        const badge = group.selected
+            ? '<div class="badge">Selected</div>'
+            : group.recommended
+                ? '<div class="badge">Recommended</div>'
+                : "";
+        const cardClass = group.selected ? "selected" : group.recommended ? "recommended" : "";
+        return `
+            <div class="mapping-card ${cardClass}">
+                ${badge}
+                <h3>${escapeHtml(group.name)}</h3>
+                <div class="score-summary-row">
+                    <span>
+                        ${escapeHtml(formatPhase(getEffectiveMatchPhase(output, firstMatch)))}
+                        &bull;
+                        Recommendation ${escapeHtml(formatRecommendationScore(firstMatch))}
+                    </span>
+                    ${scoreDetailsText ? `
+                        <button
+                            class="score-details-toggle"
+                            type="button"
+                            data-score-index="${index}"
+                            title="Show scoring breakdown"
+                        >Score details</button>
+                    ` : ""}
+                </div>
+                <div class="small-text">
+                    ${escapeHtml(getMatchSummaryText(firstMatch, output))}
+                </div>
+                <button class="select-btn" type="button" data-stream="${escapeHtml(group.name)}">
+                    ${escapeHtml(buttonLabel)}
+                </button>
+            </div>
+        `;
+    }).join("");
+
+    Array.from(valueStreamCards.querySelectorAll("button[data-stream]")).forEach((button) => {
+        button.addEventListener("click", async () => {
+            const streamName = button.getAttribute("data-stream") || "";
+            await applyValueStreamSelection(streamName);
+        });
+    });
+
+    Array.from(valueStreamCards.querySelectorAll("button[data-score-index]")).forEach((button) => {
+        button.addEventListener("click", () => {
+            const index = Number(button.getAttribute("data-score-index") || 0);
+            const group = groups[index] || {};
+            const match = group.matches?.[0] || {};
+            openJustificationModal(group.name, match, output);
+        });
+    });
+}
+
+function renderFlowCards() {
+    const entry = getSelectedEntry();
+    const output = getSelectedOutput();
+    const selectedMatch = getSelectedMatch(output);
+    const requirement = entry?.requirement || {};
+    const scenario = getScenarioInfo(output);
+
+    if (!entry) {
+        flowCards.innerHTML = `
+            <div class="flow-card">
+                <h4>Requested Attribute</h4>
+                <p>-</p>
+            </div>
+        `;
+        return;
+    }
+
+    flowCards.innerHTML = `
+        <div class="flow-card">
+            <h4>Requested Attribute</h4>
+            <p>${escapeHtml(requirement.business_attribute || "-")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Match Type</h4>
+            <p>${escapeHtml(formatPhase(getEffectiveMatchPhase(output, selectedMatch)))}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Matched Attribute</h4>
+            <p>${escapeHtml(selectedMatch?.attribute_name || "-")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Scenario</h4>
+            <p>${escapeHtml(scenario.label)}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Region</h4>
+            <p>${escapeHtml(requirement.region ? `Validated: ${requirement.region}` : "All Regions")}</p>
+        </div>
+        <div class="flow-card">
+            <h4>Recommendation Score</h4>
+            <p>${escapeHtml(formatRecommendationScore(selectedMatch))}</p>
+        </div>
+    `;
+}
+
+function renderAttributeInfo() {
+    const entry = getSelectedEntry();
+    const requirement = entry?.requirement || {};
+
+    if (!entry) {
+        attributeInfo.innerHTML = `
+            <div class="uploaded-fields">
+                <div class="uploaded-field">
+                    <div class="uploaded-field-label">Business Attribute</div>
+                    <div class="uploaded-field-value">-</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    attributeInfo.innerHTML = `
+        <div class="uploaded-fields">
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Business Attribute</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.business_attribute || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Business Definition</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.business_definition || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Region</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.region || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Value Stream</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.value_stream || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">Brief Problem Statement / Use Case</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.brief_problem_statement || "-")}</div>
+            </div>
+            <div class="uploaded-field">
+                <div class="uploaded-field-label">System Requirements</div>
+                <div class="uploaded-field-value">${escapeHtml(requirement.system_requirements || "-")}</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderLineagePreview() {
+    const output = getSelectedOutput();
+    const selectedMatch = getSelectedMatch(output);
+    const lineageStreams = selectedMatch?.lineage_value_streams || [];
+
+    if (!selectedMatch) {
+        lineagePreview.innerHTML = '<div class="node">No lineage available yet</div>';
+        return;
+    }
+
+    const nodes = lineageStreams.length
+        ? lineageStreams.concat([selectedMatch.value_stream || selectedMatch.value_stream_name || "Selected Stream"])
+        : [selectedMatch.value_stream || selectedMatch.value_stream_name || "Selected Stream"];
+
+    lineagePreview.innerHTML = nodes.map((node, index) => `
+        <div class="lineage-step">
+            <div class="node">${escapeHtml(node)}</div>
+            ${index < nodes.length - 1 ? '<div class="arrow">&rarr;</div>' : ''}
+        </div>
+    `).join("");
+}
+
+function renderRelatedAttributes() {
+    const output = getSelectedOutput();
+    const groups = getValueStreamGroups(output);
+    const selectedGroup = groups.find((group) => group.selected) || groups[0];
+    const attributes = getUniqueAttributes(selectedGroup?.matches || output?.relevant_matches || []);
+
+    if (!attributes.length) {
+        relatedAttributes.innerHTML = '<div class="tag">No attributes selected</div>';
+        return;
+    }
+
+    relatedAttributes.innerHTML = attributes.map((attribute) => `
+        <div class="tag">${escapeHtml(attribute)}</div>
+    `).join("");
+}
+
+function renderAll() {
+    renderRowSelect();
+    renderHeader();
+    renderStats();
+    renderAlert();
+    renderValueStreamCards();
+    renderFlowCards();
+    renderAttributeInfo();
+    renderLineagePreview();
+    renderRelatedAttributes();
+}
+
+function safeRenderAll() {
+    try {
+        renderAll();
+    } catch (error) {
+        reportClientError("Render failed", error);
+    }
+}
+
+async function processRequirementFile(fileOverride = null) {
+    const file = fileOverride || requirementFileInput.files[0];
+    if (!file) {
+        setMessage("Choose a requirement workbook before processing.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    setMessage("Processing requirement workbook...", "");
+    safeRenderAll();
+
+    try {
+        const requirements = await parseRequirementWorkbookInBrowser(file);
+        setMessage(`Workbook parsed: ${requirements.length} row(s). Requesting summary...`, "");
+        safeRenderAll();
+        const response = await fetch(buildApiUrl("/analytics/batch/summary"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                queries: requirements.map((requirement) => ({
+                    attribute_name: requirement.attribute_name,
+                    attribute_description: requirement.attribute_description,
+                    region: requirement.region || "",
+                    selected_value_stream: requirement.selected_value_stream || "",
+                    brief_problem_statement: requirement.brief_problem_statement || "",
+                    system_requirements: requirement.system_requirements || ""
+                }))
+            })
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.detail || "Requirement workbook processing failed.");
+        }
+
+        state.payload = buildUiPayloadFromSummary(file.name, requirements, payload);
+        state.selectedIndex = state.payload.results.length ? 0 : null;
+        state.feedbackRerunActive = false;
+        state.rowSelections = [];
+        revokePreparedDownloads();
+        setMessage(`Summary loaded for ${state.payload.total_rows} row(s) from ${file.name}.`, "success");
+        safeRenderAll();
+        if (state.selectedIndex !== null) {
+            await loadRequirementDetails(state.selectedIndex);
+        }
+        startBackgroundPreparation();
+    } catch (error) {
+        setMessage(`${error.message || "Requirement workbook processing failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+function applyLocalValueStreamSelection(entry, streamName) {
+    if (!entry || !streamName) {
+        return false;
+    }
+
+    const output = entry.output || {};
+    const details = { ...(output.selected_details || {}) };
+
+    if (details.preferred_layer === "GDA" && details.gda_value_stream_details && details.gda_value_stream_details[streamName]) {
+        details.selected_gda_value_stream = streamName;
+        details.selected_gda_details = details.gda_value_stream_details[streamName];
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = {
+            ...output,
+            status: "matched",
+            human_in_loop_required: false,
+            human_in_loop_prompt: "",
+            human_selection_options: [],
+            selected_details: details,
+            details_loaded: true,
+            answer: `Selected value stream ${streamName}.`
+        };
+        return true;
+    }
+
+    if (details.preferred_layer === "MDA" && details.mda_value_stream_details && details.mda_value_stream_details[streamName]) {
+        details.selected_mda_value_stream = streamName;
+        details.selected_mda_details = details.mda_value_stream_details[streamName];
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = {
+            ...output,
+            selected_details: details,
+            details_loaded: true,
+            answer: `Selected value stream ${streamName}.`
+        };
+        return true;
+    }
+
+    return false;
+}
+
+async function applyValueStreamSelection(streamName) {
+    const entry = getSelectedEntry();
+    if (!entry || !streamName) {
+        return;
+    }
+
+    if (applyLocalValueStreamSelection(entry, streamName)) {
+        revokePreparedDownloads();
+        startBackgroundPreparation();
+        setMessage(`Applied value stream ${streamName}.`, "success");
+        safeRenderAll();
+        return;
+    }
+
+    const requirement = entry.requirement || {};
+    setMessage(`Applying value stream ${streamName}...`, "");
+    safeRenderAll();
+
+    try {
+        entry.requirement.selected_value_stream = streamName;
+        entry.output = await requestAnalyticsOutput(requirement, streamName);
+        revokePreparedDownloads();
+        startBackgroundPreparation();
+        setMessage(`Applied value stream ${streamName}.`, "success");
+        safeRenderAll();
+    } catch (error) {
+        setMessage(`${error.message || "Value stream selection failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+function updatePreviewCounter(total) {
+    const sel   = (state.rowSelections || []).filter(Boolean).length;
+    const unsel = total - sel;
+    document.getElementById("approvePreviewSummary").innerHTML = `
+        <span>Total: <strong>${total}</strong></span>
+        <span style="color:#12b76a">&#10003; Approved: <strong>${sel}</strong></span>
+        <span style="color:#f04438">&#10007; Needs review: <strong>${unsel}</strong></span>
+    `;
+    const sc = document.getElementById("selectedCount");
+    const uc = document.getElementById("unselectedCount");
+    if (sc) sc.textContent = sel;
+    if (uc) uc.textContent = unsel;
+    const rrBtn = document.getElementById("reviewResubmitBtn");
+    if (rrBtn) rrBtn.disabled = unsel === 0;
+}
+
+function renderApprovePreview() {
+    const rows = buildExcelRows();
+    if (!state.rowSelections || state.rowSelections.length !== rows.length) {
+        state.rowSelections = rows.map(() => true);
+    }
+    updatePreviewCounter(rows.length);
+
+    if (!rows.length) {
+        approvePreviewTableWrap.innerHTML = '<div class="empty-preview">No rows available.</div>';
+        return;
+    }
+
+    // Only show key columns in the preview — keep it readable
+    const previewCols = ["Business Attribute", "Matched Attribute", "Search Phase", "Recommendation Score", "Source"];
+    const availableCols = previewCols.filter(c => c in rows[0]);
+
+    approvePreviewTableWrap.innerHTML = `
+        <table class="approve-preview-table">
+            <thead>
+                <tr>
+                    <th class="col-select">
+                        <input type="checkbox" id="selectAllChk" title="Select all" ${state.rowSelections.every(Boolean) ? "checked" : ""}>
+                    </th>
+                    ${availableCols.map(c => `<th>${escapeHtml(c)}</th>`).join("")}
+                </tr>
+            </thead>
+            <tbody>
+                ${rows.map((row, i) => `
+                    <tr class="${state.rowSelections[i] ? "" : "row-unselected"}" data-row-index="${i}">
+                        <td class="col-select">
+                            <input type="checkbox" class="row-chk" data-row="${i}" ${state.rowSelections[i] ? "checked" : ""}>
+                        </td>
+                        ${availableCols.map(c => `<td>${escapeHtml(String(row[c] || ""))}</td>`).join("")}
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+    bindExpandableDetailToggles(approvePreviewTableWrap);
+
+    // Row checkboxes
+    approvePreviewTableWrap.querySelectorAll(".row-chk").forEach(chk => {
+        chk.addEventListener("change", () => {
+            const idx = parseInt(chk.getAttribute("data-row"));
+            state.rowSelections[idx] = chk.checked;
+            chk.closest("tr").classList.toggle("row-unselected", !chk.checked);
+            const selectAll = document.getElementById("selectAllChk");
+            if (selectAll) selectAll.checked = state.rowSelections.every(Boolean);
+            updatePreviewCounter(rows.length);
+        });
+    });
+
+    // Select-all checkbox
+    const selectAllChk = document.getElementById("selectAllChk");
+    if (selectAllChk) {
+        selectAllChk.addEventListener("change", () => {
+            state.rowSelections = rows.map(() => selectAllChk.checked);
+            approvePreviewTableWrap.querySelectorAll(".row-chk").forEach(c => { c.checked = selectAllChk.checked; });
+            approvePreviewTableWrap.querySelectorAll("tbody tr").forEach(tr => {
+                tr.classList.toggle("row-unselected", !selectAllChk.checked);
+            });
+            updatePreviewCounter(rows.length);
+        });
+    }
+}
+
+function openApprovePreviewModal() {
+    renderApprovePreview();
+    approvePreviewModal.classList.remove("hidden");
+    downloadExcelBtn.focus();
+}
+
+function closeApprovePreviewModal() {
+    approvePreviewModal.classList.add("hidden");
+}
+
+function renderApprovePreviewCell(column, value, rowIndex) {
+    const text = String(value || "");
+    if (column !== "Justification" || text.length <= 120) {
+        return escapeHtml(text);
+    }
+
+    const targetId = `approvePreviewScoreDetails-${rowIndex}`;
+    return `
+        <button
+            class="score-details-toggle"
+            type="button"
+            data-score-target="${escapeHtml(targetId)}"
+            data-collapsed-label="Score details"
+            data-expanded-label="Hide details"
+            aria-expanded="false"
+            aria-controls="${escapeHtml(targetId)}"
+            title="Show scoring breakdown"
+        >Score details</button>
+        <div id="${escapeHtml(targetId)}" class="score-details-panel preview-score-details hidden">
+            ${escapeHtml(text)}
+        </div>
+    `;
+}
+
+async function approveResults() {
+    if (!state.payload) {
+        setMessage("Process a requirement workbook before approving results.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    if (typeof XLSX === "undefined") {
+        setMessage("Excel export library is not available in the page.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    // Open modal immediately — preparation runs in background
+    openApprovePreviewModal();
+    ensurePreparedDownloads().catch(() => {}); // background, non-blocking
+
+    safeRenderAll();
+}
+async function submitDeclineFeedback() {
+    if (state.smePreviewReady) {
+        await sendSmeEmailPreview();
+        return;
+    }
+
+    if (!state.payload) {
+        closeDeclineFeedbackModal();
+        setMessage("Process a requirement workbook before submitting decline feedback.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    const feedbackText = declineFeedbackText.value.trim();
+    if (!feedbackText) {
+        setMessage("Enter feedback before submitting decline details.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    if (state.feedbackRerunActive) {
+        showSmeEmailPreview(
+            feedbackText,
+            "The user declined again after the model was rerun with valid feedback. The app has stopped the retry loop and this case now needs SME review."
+        );
+        setMessage("Second decline captured. SME email preview is available in the feedback modal.", "warn");
+        safeRenderAll();
+        return;
+    }
+
+    const feedbackRequirements = extractFeedbackRequirements(feedbackText);
+    if (!feedbackRequirements.length) {
+        showSmeEmailPreview(
+            feedbackText,
+            "The user declined the suggested mapping, but no usable attribute name and description were found in the feedback."
+        );
+        setMessage("Feedback needs SME review. Preview is available in the feedback modal.", "warn");
+        safeRenderAll();
+        return;
+    }
+
+    try {
+        downloadFeedbackRequirementFile(feedbackRequirements);
+        closeDeclineFeedbackModal();
+        setMessage(
+            `Downloaded decline_feedback_requirement.xlsx with ${feedbackRequirements.length} corrected attribute(s). Upload that workbook again to rerun the model.`,
+            "success"
+        );
+    } catch (error) {
+        setMessage(`${error.message || "Feedback workbook download failed."}`, "error");
+    }
+
+    safeRenderAll();
+}
+
+async function downloadResultsExcel() {
+    // Called by the old download button — kept for compatibility
+    await confirmAndDownload();
+}
+
+async function confirmAndDownload() {
+    if (!state.payload) {
+        setMessage("Process a requirement workbook before downloading.", "error");
+        safeRenderAll();
+        return;
+    }
+    if (typeof XLSX === "undefined") {
+        setMessage("Excel export library is not available.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    const allRows    = buildExcelRows();
+    const results    = state.payload?.results || [];
+    const selections = state.rowSelections && state.rowSelections.length === allRows.length
+        ? state.rowSelections
+        : allRows.map(() => true);
+
+    const selectedRows   = allRows.filter((_, i) => selections[i] !== false);
+    const unselectedIdxs = allRows.map((_, i) => i).filter(i => selections[i] === false);
+
+    // ── File 1: Approved results ──────────────────────────────────────────────
+    if (selectedRows.length) {
+        const ws1 = XLSX.utils.json_to_sheet(selectedRows);
+        const wb1 = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb1, ws1, "DA_Results");
+        XLSX.writeFile(wb1, "digital_da_results.xlsx");
+    }
+
+    // ── File 2: Resubmit requirements (unticked rows) ─────────────────────────
+    if (unselectedIdxs.length) {
+        const resubmitRows = unselectedIdxs.map(i => {
+            const req = results[i]?.requirement || {};
+            return {
+                "Business Attribute":                 req.business_attribute   || req.attribute_name        || "",
+                "Business Definition":                req.business_definition  || req.attribute_description || "",
+                "Region":                             req.region               || "",
+                "Value Stream":                       req.value_stream         || "",
+                "Brief Problem Statement / Use Case": req.brief_problem_statement || "",
+                "System Requirements":                req.system_requirements  || "",
+                "Feedback": "Declined — please review and enter the correct attribute before resubmitting.",
+            };
+        });
+        const ws2 = XLSX.utils.json_to_sheet(resubmitRows);
+        const wb2 = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb2, ws2, "Resubmit_Requirements");
+        XLSX.writeFile(wb2, "resubmit_requirements.xlsx");
+    }
+
+    closeApprovePreviewModal();
+
+    const msg = selectedRows.length && unselectedIdxs.length
+        ? `Downloaded: ${selectedRows.length} approved row(s) → digital_da_results.xlsx  |  ${unselectedIdxs.length} row(s) for resubmission → resubmit_requirements.xlsx`
+        : selectedRows.length
+            ? `Downloaded ${selectedRows.length} approved row(s) → digital_da_results.xlsx`
+            : `${unselectedIdxs.length} row(s) saved for resubmission → resubmit_requirements.xlsx`;
+
+    setMessage(msg, "success");
+    safeRenderAll();
+}
+
+async function downloadResultsJson() {
+    if (!state.payload) {
+        setMessage("Process a requirement workbook before exporting JSON.", "error");
+        safeRenderAll();
+        return;
+    }
+
+    try {
+        await ensurePreparedDownloads();
+    } catch (error) {
+        setMessage(`${error.message || "JSON export failed."} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+        return;
+    }
+
+    triggerDownload(state.preparedJsonUrl, "digital_da_results.json");
+    setMessage("User-safe JSON export downloaded.", "success");
+    safeRenderAll();
+}
+
+
+
+function openFilePicker() {
+    requirementFileInput.value = "";
+    requirementFileInput.click();
+}
+
+uploadBtn.addEventListener("click", openFilePicker);
+sidebarUploadBtn.addEventListener("click", openFilePicker);
+
+requirementFileInput.addEventListener("change", async () => {
+    const selectedFile = requirementFileInput.files && requirementFileInput.files[0];
+    if (!selectedFile) {
+        return;
+    }
+    setMessage(`Selected file: ${selectedFile.name}. Preparing workbook...`, "");
+    safeRenderAll();
+    setTimeout(() => {
+        processRequirementFile(selectedFile);
+    }, 0);
+});
+
+rowSelect.addEventListener("change", () => {
+    if (rowSelect.value === "") {
+        return;
+    }
+    state.selectedIndex = Number(rowSelect.value);
+    clearMessage();
+    safeRenderAll();
+    loadRequirementDetails(state.selectedIndex);
+});
+
+approveBtn.addEventListener("click", approveResults);
+cancelDeclineFeedbackBtn.addEventListener("click", closeDeclineFeedbackModal);
+submitDeclineFeedbackBtn.addEventListener("click", submitDeclineFeedback);
+closeApprovePreviewBtn.addEventListener("click", closeApprovePreviewModal);
+// ── Preview modal wiring ─────────────────────────────────────────────────────
+document.getElementById("downloadExcelBtn").addEventListener("click", downloadApprovedExcel);
+document.getElementById("reviewResubmitBtn").addEventListener("click", goToStep2);
+document.getElementById("closeApprovePreviewBtn2").addEventListener("click", closeApprovePreviewModal);
+document.getElementById("backToStep1Btn").addEventListener("click", goToStep1);
+document.getElementById("backToStep1Btn2").addEventListener("click", goToStep1);
+document.getElementById("downloadResubmitBtn").addEventListener("click", downloadResubmitFile);
+document.getElementById("sendSmeEmailBtn").addEventListener("click", sendSmeEmail);
+downloadJsonBtn.addEventListener("click", downloadResultsJson);
+
+function goToStep1() {
+    document.getElementById("previewStep1").classList.remove("hidden");
+    document.getElementById("previewStep2").classList.add("hidden");
+}
+
+function goToStep2() {
+    const rows    = buildExcelRows();
+    const results = state.payload?.results || [];
+    const unselIdxs = rows.map((_, i) => i).filter(i => state.rowSelections[i] === false);
+    if (!unselIdxs.length) {
+        setMessage("No rows to review — all are selected.", "error");
+        return;
+    }
+    document.getElementById("step2Subtitle").textContent =
+        `${unselIdxs.length} attribute(s) need attention. Add hints then download the resubmit file.`;
+
+    // Render per-row hint input cards
+    const listHtml = unselIdxs.map(i => {
+        const req   = results[i]?.requirement || {};
+        const match = rows[i] || {};
+        const attr  = escapeHtml(req.business_attribute || req.attribute_name || "");
+        const matched = escapeHtml(match["Matched Attribute"] || "No match found");
+        const score   = escapeHtml(match["Recommendation Score"] || "");
+        const sysReq  = escapeHtml(req.system_requirements || "");
+        return `
+        <div style="border:1px solid #e8ebf3;border-radius:12px;padding:14px;margin-bottom:12px;background:white;" data-unsel-idx="${i}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <strong style="font-size:13px;">${attr}</strong>
+                <span style="font-size:12px;color:#667085;">Matched: ${matched} &nbsp;(${score})</span>
+            </div>
+            <label style="font-size:12px;color:#667085;display:block;margin-bottom:4px;">Hint / Correct attribute name (optional)</label>
+            <input type="text" class="row-hint-input" data-row="${i}"
+                placeholder="e.g. assessment_id"
+                style="width:100%;padding:7px 10px;border:1px solid #d0d5e8;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:6px;">
+            <label style="font-size:12px;color:#667085;display:block;margin-bottom:4px;">Additional context for system requirements (optional)</label>
+            <input type="text" class="row-context-input" data-row="${i}"
+                placeholder="e.g. Use source system MDA, table RISK_RATING"
+                value="${sysReq}"
+                style="width:100%;padding:7px 10px;border:1px solid #d0d5e8;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>`;
+    }).join("");
+    document.getElementById("step2RowList").innerHTML = listHtml;
+    document.getElementById("previewStep1").classList.add("hidden");
+    document.getElementById("previewStep2").classList.remove("hidden");
+}
+
+async function downloadApprovedExcel() {
+    if (typeof XLSX === "undefined") { setMessage("Excel library not available.", "error"); return; }
+    const allRows  = buildExcelRows();
+    const selected = allRows.filter((_, i) => state.rowSelections[i] !== false);
+    if (!selected.length) { setMessage("No approved rows to download.", "error"); return; }
+    const ws = XLSX.utils.json_to_sheet(selected);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DA_Results");
+    XLSX.writeFile(wb, "digital_da_results.xlsx");
+    closeApprovePreviewModal();
+    setMessage(`Downloaded ${selected.length} approved row(s) → digital_da_results.xlsx`, "success");
+    safeRenderAll();
+}
+
+function downloadResubmitFile() {
+    if (typeof XLSX === "undefined") { setMessage("Excel library not available.", "error"); return; }
+    const results   = state.payload?.results || [];
+    const allRows   = buildExcelRows();
+    const unselIdxs = allRows.map((_, i) => i).filter(i => state.rowSelections[i] === false);
+    if (!unselIdxs.length) { setMessage("No unticked rows to resubmit.", "error"); return; }
+
+    // Collect per-row hints from the input fields
+    const hintInputs    = document.querySelectorAll(".row-hint-input");
+    const contextInputs = document.querySelectorAll(".row-context-input");
+    const hintByRow    = {};
+    const contextByRow = {};
+    hintInputs.forEach(el    => { hintByRow[parseInt(el.getAttribute("data-row"))]    = el.value.trim(); });
+    contextInputs.forEach(el => { contextByRow[parseInt(el.getAttribute("data-row"))] = el.value.trim(); });
+
+    const resubmitRows = unselIdxs.map(i => {
+        const req  = results[i]?.requirement || {};
+        const hint = hintByRow[i]    || "";
+        const ctx  = contextByRow[i] || req.system_requirements || "";
+        const sysReqWithHint = hint
+            ? (ctx ? `${ctx}
+User hint: correct attribute is ${hint}.` : `User hint: correct attribute is ${hint}.`)
+            : ctx;
+        return {
+            "Business Attribute":                 req.business_attribute    || req.attribute_name       || "",
+            "Business Definition":                req.business_definition   || req.attribute_description || "",
+            "Region":                             req.region                || "",
+            "Value Stream":                       req.value_stream          || "",
+            "Brief Problem Statement / Use Case": req.brief_problem_statement || "",
+            "System Requirements":                sysReqWithHint,
+            "Feedback": hint
+                ? `User indicated correct attribute: ${hint}`
+                : "Declined — please review and resubmit with correct mapping.",
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(resubmitRows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Resubmit_Requirements");
+    XLSX.writeFile(wb, "resubmit_requirements.xlsx");
+    closeApprovePreviewModal();
+    setMessage(`Resubmit file downloaded with ${resubmitRows.length} row(s) → resubmit_requirements.xlsx`, "success");
+    safeRenderAll();
+}
+
+async function sendSmeEmail() {
+    const results   = state.payload?.results || [];
+    const allRows   = buildExcelRows();
+    const unselIdxs = allRows.map((_, i) => i).filter(i => state.rowSelections[i] === false);
+    if (!unselIdxs.length) { setMessage("No unticked rows to escalate.", "error"); return; }
+
+    const attrSummary = unselIdxs.map(i => {
+        const req     = results[i]?.requirement || {};
+        const match   = allRows[i] || {};
+        const attr    = req.business_attribute || req.attribute_name || "Unknown";
+        const matched = match["Matched Attribute"] || "No match";
+        const score   = match["Recommendation Score"] || "";
+        // Include any hint the user entered
+        const hintEl  = document.querySelector(`.row-hint-input[data-row="${i}"]`);
+        const hint    = hintEl ? hintEl.value.trim() : "";
+        return `- ${attr} → ${matched} (${score})${hint ? ` [User hint: ${hint}]` : ""}`;
+    }).join("\n");
+
+    const emailSubject = "SME review required — declined data discovery mapping";
+    const emailBody = [
+        "Hello SME Team,",
+        "",
+        "The following attributes were declined by the user and require your expert review:",
+        "",
+        attrSummary,
+        "",
+        "Please advise the correct attribute mapping or provide the correct source attribute details.",
+        "",
+        `Source file: ${state.payload?.source_file_name || "unknown"}`,
+    ].join("\n");
+
+    const btn = document.getElementById("sendSmeEmailBtn");
+    if (btn) { btn.disabled = true; btn.textContent = "Sending..."; }
+
+    try {
+        const response = await fetch(buildApiUrl("/analytics/sme-email"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subject: emailSubject, body: emailBody }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "SME email send failed.");
+        closeApprovePreviewModal();
+        setMessage(`SME email sent${payload.to ? " to " + payload.to : ""}.`, "success");
+    } catch (err) {
+        // Fallback to mailto if SMTP not configured
+        console.warn("SMTP send failed, falling back to mailto:", err.message);
+        window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        closeApprovePreviewModal();
+        setMessage("SME email opened in your mail client (SMTP not configured).", "success");
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = "Escalate to SME"; }
+    }
+    safeRenderAll();
+}
+document.getElementById("modalClose").addEventListener("click", closeJustificationModal);
+declineFeedbackText.addEventListener("input", () => {
+    hideSmeEmailPreview();
+    resetDeclineSubmitButton();
+});
+declineFeedbackModal.addEventListener("click", (event) => {
+    if (event.target === declineFeedbackModal) {
+        closeDeclineFeedbackModal();
+    }
+});
+approvePreviewModal.addEventListener("click", (event) => {
+    if (event.target === approvePreviewModal) {
+        closeApprovePreviewModal();
+    }
+});
+document.getElementById("justificationModal").addEventListener("click", (event) => {
+    if (event.target === document.getElementById("justificationModal")) {
+        closeJustificationModal();
+    }
+});
+
+window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !approvePreviewModal.classList.contains("hidden")) {
+        closeApprovePreviewModal();
+    }
+    if (event.key === "Escape") {
+        closeJustificationModal();
+    }
+});
+
+window.addEventListener("error", (event) => {
+    reportClientError("Page error", event.error || event.message);
+});
+
+window.addEventListener("unhandledrejection", (event) => {
+    reportClientError("Async error", event.reason);
+});
+
+safeRenderAll();
+checkBackendHealth();
+
+
+
+// ── Decline modal — radio switching ──────────────────────────────────────────
+const reasonKnown    = document.getElementById("reasonKnown");
+const reasonUncertain= document.getElementById("reasonUncertain");
+const knownAttrPanel = document.getElementById("knownAttrPanel");
+const smeAttrPanel   = document.getElementById("smeAttrPanel");
+const submitDeclineBtn = document.getElementById("submitDeclineFeedbackBtn");
+
+function updateDeclineMode() {
+    const isKnown = reasonKnown && reasonKnown.checked;
+    if (knownAttrPanel) knownAttrPanel.classList.toggle("hidden", !isKnown);
+    if (smeAttrPanel)   smeAttrPanel.classList.toggle("hidden", isKnown);
+    if (submitDeclineBtn) {
+        submitDeclineBtn.textContent = isKnown
+            ? "Rerun with Hint"
+            : "Download Requirement File";
+    }
+}
+
+if (reasonKnown)     reasonKnown.addEventListener("change", updateDeclineMode);
+if (reasonUncertain) reasonUncertain.addEventListener("change", updateDeclineMode);
+
+// ── Intercept submitDeclineFeedback to handle "known" path ───────────────────
+const _origSubmitDecline = typeof submitDeclineFeedback === "function" ? submitDeclineFeedback : null;
+
+async function submitDeclineFeedbackWithHint() {
+    const isKnown = reasonKnown && reasonKnown.checked;
+
+    if (!isKnown) {
+        // SME path — use original textarea and flow unchanged
+        const smeTextarea = document.getElementById("declineFeedbackTextSme");
+        const declineFeedbackText = document.getElementById("declineFeedbackText");
+        if (smeTextarea && declineFeedbackText) {
+            // temporarily copy SME textarea value to the original so existing logic works
+            const orig = declineFeedbackText.value;
+            declineFeedbackText.value = smeTextarea.value;
+            await submitDeclineFeedback();
+            declineFeedbackText.value = orig;
+        } else {
+            await submitDeclineFeedback();
+        }
+        return;
+    }
+
+    // "I know the attribute" path
+    const hintAttr = (document.getElementById("knownAttrInput")?.value || "").trim();
+    const extraContext = (document.getElementById("declineFeedbackText")?.value || "").trim();
+
+    if (!hintAttr) {
+        alert("Please enter the correct attribute name.");
+        return;
+    }
+
+    if (!state.payload) {
+        setMessage("No results loaded. Process a workbook first.", "error");
+        return;
+    }
+
+    closeDeclineFeedbackModal();
+    setMessage("Rerunning search with your attribute hint...", "");
+
+    // Build queries — inject hint into system_requirements so LLM context check uses it
+    const results = state.payload?.results || [];
+    const queries = results.map((entry) => {
+        const req = entry?.requirement || {};
+        const existingSysReq = req.system_requirements || "";
+        const hintNote = `User confirmed the correct attribute is: ${hintAttr}. Prefer this match above all others.`;
+        return {
+            attribute_name:          req.attribute_name || req.business_attribute || "",
+            attribute_description:   req.attribute_description || req.business_definition || "",
+            region:                  req.region || "",
+            selected_value_stream:   req.value_stream || "",
+            brief_problem_statement: req.brief_problem_statement || "",
+            system_requirements:     existingSysReq
+                ? existingSysReq + "\n" + hintNote
+                : hintNote + (extraContext ? "\n" + extraContext : ""),
+        };
+    });
+
+    try {
+        const response = await fetch(buildApiUrl("/analytics/batch/summary"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ queries }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "Rerun failed.");
+
+        state.payload = buildUiPayloadFromSummary(
+            state.payload?.source_file_name || "hint_rerun.xlsx",
+            results.map(e => e.requirement || {}),
+            payload
+        );
+        state.selectedIndex = state.payload.results.length ? 0 : null;
+        state.feedbackRerunActive = true;
+        revokePreparedDownloads();
+        setMessage(`Rerun complete with hint "${hintAttr}". Review the updated results.`, "success");
+        safeRenderAll();
+        if (state.selectedIndex !== null) {
+            await loadRequirementDetails(state.selectedIndex);
+        }
+        startBackgroundPreparation();
+    } catch (err) {
+        setMessage(`Rerun failed: ${err.message} API: ${getApiBaseUrl()}`, "error");
+        safeRenderAll();
+    }
+}
+
+// Override the submit button click to route through our new function
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("submitDeclineFeedbackBtn");
+    if (btn) {
+        // Remove existing listeners by replacing the element
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        newBtn.addEventListener("click", submitDeclineFeedbackWithHint);
+    }
+});
+</script>
+</body>
+</html>

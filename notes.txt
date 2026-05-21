@@ -1,0 +1,23 @@
+application name change
+docs-> data catalog ,business glosarry,
+remove Data Modeling Flow from landing page
+busines glosarry check
+
+
+
+{
+  "query": "what is the avg differce in days to disbursement and maturity date"
+}
+
+{
+  "query": "what will be the facility type of a particula customer with name = swamy and idont want to use any big table"
+}
+Note:
+
+
+{
+  "query": "i want latest risk rating with score"
+}
+
+select GDA_LATEST_RISK_RATING.latest_pd_or_score, GDA_LATEST_RISK_RATING.latest_rating_grade_cd, GDA_LATEST_RISK_RATING.latest_rating_date, CDA_LOAN_RISK_PROVISION_SUMMARY.latest_pd_or_score, CDA_LOAN_RISK_PROVISION_SUMMARY.latest_rating_grade_cd, CDA_LOAN_RISK_PROVISION_SUMMARY.latest_rating_date\nfrom GDA_LATEST_RISK_RATING\njoin CDA_LOAN_RISK_PROVISION_SUMMARY\n  on GDA_LATEST_RISK_RATING.fclty_id = CDA_LOAN_RISK_PROVISION_SUMMARY.fclty_id
+

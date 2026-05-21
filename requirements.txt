@@ -1,0 +1,14 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+python-dotenv==1.0.1
+python-multipart==0.0.20
+langchain-core==0.3.59
+langchain-google-genai==2.1.4
+langgraph==0.4.1
+sentence-transformers==2.7.0
+faiss-cpu==1.8.0
+numpy==1.26.4
+rapidfuzz==3.13.0
+xlsxwriter
+openpyxl
